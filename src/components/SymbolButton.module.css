@@ -15,6 +15,7 @@
   -webkit-touch-callout: none;
   overflow: hidden;
   z-index: 1010;
+  position: relative; /* Added for absolute positioning of nowIndicator */
 }
 
 .symbolButton:hover {
@@ -72,3 +73,41 @@
     height: 50px;
   }
 }
+
+/* Styling for the 'now' symbol - REMOVE animation */
+.nowSymbol {
+  background-color: #e3f2fd;
+  border: 2px solid #1976d2;
+  z-index: 1020;
+}
+
+.nowSymbol:hover {
+  transform: scale(1.05);
+  background-color: #bbdefb;
+}
+
+.nowSymbol .symbolName {
+  color: #0d47a1;
+  font-weight: bold;
+}
+
+/* NOW indicator badge */
+.nowIndicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f44336;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Pulsing animation - REMOVE */
+/* @keyframes pulse { ... } */

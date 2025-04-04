@@ -4,62 +4,87 @@ This document provides an overview of the Now-Next application structure, explai
 
 ## Main Application Files
 
-- **App.tsx**: The main application component that manages the overall state and renders the primary UI
-- **App.module.css**: Component-specific styles for the App component
-- **main.tsx**: Entry point for the React application, includes standalone mode detection for iOS
-- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations
-- **index.html**: Main HTML file with mobile meta tags and PWA configurations
-- **manifest.json**: PWA manifest file for home screen installation on mobile devices
+- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `sequence`, `isPopupOpen`, `isMenuOpen`) and renders the primary UI.
+- **App.module.css**: Component-specific styles for the App component.
+- **main.tsx**: Entry point for the React application, includes standalone mode detection for iOS.
+- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations and base element styling.
+- **index.html**: Main HTML file with mobile meta tags, PWA configurations, and the root div (`#root`).
+- **manifest.json**: PWA manifest file for home screen installation on mobile devices.
 
-## Component Structure
+## Component Structure & Interactions
 
-### Activity Card Component
-- **components/ActivityCard.tsx**: Displays either the "Now" or "Next" activity with its symbol
-- **components/ActivityCard.module.css**: Styles specific to the ActivityCard component
+This section details each component, its props (inputs), and how it interacts with its parent (outputs/callbacks).
 
-### Symbol Button Component
-- **components/SymbolButton.tsx**: Reusable button component that displays a symbol with its name
-- **components/SymbolButton.module.css**: Styles for the symbol buttons with touch-friendly optimizations
+### App.tsx
+- **State Managed:**
+  - `nowSymbol: string | null`: Filename of the symbol for the "Now" activity.
+  - `nextSymbol: string | null`: Filename of the symbol for the "Next" activity.
+  - `isPopupOpen: 'now' | 'next' | 'sequence' | null`: Controls which symbol selection popup is open.
+  - `sequence: string[]`: Array of symbol filenames for the activity sequence.
+  - `isMenuOpen: boolean`: Controls the visibility of the burger menu.
+- **Renders:**
+  - `ActivityCard` (x2): For "Now" and "Next".
+  - `BurgerMenu`: The main menu.
+  - `SymbolSelectionPopup`: The popup for choosing symbols.
+- **Provides Callbacks:**
+  - `openPopup`: Opens the symbol selection popup for 'now', 'next', or 'sequence'.
+  - `handleSelectSymbol`: Updates `nowSymbol`, `nextSymbol`, or `sequence` based on popup type.
+  - `handleFinishNow`: Moves `nextSymbol` to `nowSymbol`.
+  - `handleFeedSequence`: Takes symbols from `sequence` and puts them into `nowSymbol` and `nextSymbol`.
 
-### Symbol Selection Popup Component
-- **components/SymbolSelectionPopup.tsx**: Popup that allows users to select symbols for Now, Next, or Sequence
-- **components/SymbolSelectionPopup.module.css**: Styles for the popup including the 3-column grid layout
+### ActivityCard Component
+- **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
+- **Purpose:** Displays either the "Now" or "Next" activity card.
+- **Props (Inputs):**
+  - `title: string`: The title of the card ("Now" or "Next").
+  - `symbolFilename: string | null`: The filename of the symbol to display.
+  - `onClick?: () => void`: Callback function triggered when the card is clicked.
+  - `isFocus?: boolean`: If true, applies focus styling (used for the "Now" card).
+- **Interactions (Outputs):**
+  - Calls the `onClick` prop when the card div is clicked (used by `App.tsx` to trigger `openPopup`).
 
-### Burger Menu Component
-- **components/BurgerMenu.tsx**: Menu that provides access to app functions (Choose Now/Next, Finish Now, etc.)
-- **components/BurgerMenu.module.css**: Styles for the burger menu with mobile-friendly interactions
+### SymbolButton Component
+- **Files:** `components/SymbolButton.tsx`, `components/SymbolButton.module.css`
+- **Purpose:** A reusable button displaying a single symbol image and name.
+- **Props (Inputs):**
+  - `symbolName: string`: The filename of the symbol.
+  - `onClick: (e: React.MouseEvent) => void`: Callback function triggered when the button is clicked.
+  - `isNow?: boolean`: If true, applies special styling (currently used for a 'NOW' badge and pulsing effect, though the effect is applied to the card now).
+- **Interactions (Outputs):**
+  - Calls the `onClick` prop when the button is clicked (used by `SymbolSelectionPopup` to trigger `handleSelectSymbol`).
 
-## Component Interactions
+### SymbolSelectionPopup Component
+- **Files:** `components/SymbolSelectionPopup.tsx`, `components/SymbolSelectionPopup.module.css`
+- **Purpose:** A modal popup for selecting symbols.
+- **Props (Inputs):**
+  - `isOpen: boolean`: Controls if the popup is visible.
+  - `popupType: 'now' | 'next' | 'sequence' | null`: Determines the title and behavior of the popup.
+  - `onClose: () => void`: Callback function to close the popup.
+  - `onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void`: Callback function triggered when a `SymbolButton` inside is clicked.
+  - `availableSymbols: string[]`: List of symbol filenames to display.
+  - `sequenceLength?: number`: The current length of the sequence (used for display when `popupType` is 'sequence').
+- **Interactions (Outputs):**
+  - Calls `onClose` when the overlay or close button is clicked.
+  - Calls `onSelectSymbol` when a `SymbolButton` is clicked, passing the event and symbol name.
 
-1. **App.tsx**:
-   - Manages the main state (nowSymbol, nextSymbol, sequence, popups)
-   - Renders ActivityCard, BurgerMenu, and SymbolSelectionPopup components
-   - Passes state and callback functions to these components
-
-2. **ActivityCard.tsx**:
-   - Receives `title`, `symbolFilename`, and `onClick` props from App.tsx
-   - Displays the symbol image and title
-   - When clicked, triggers the parent's onClick function to open the relevant popup
-
-3. **SymbolButton.tsx**:
-   - Used within SymbolSelectionPopup
-   - Receives `symbolName` and `onClick` props
-   - When clicked, triggers its onClick prop to select the symbol
-
-4. **SymbolSelectionPopup.tsx**:
-   - Receives props from App.tsx including `popupType`, `availableSymbols`, etc.
-   - Uses SymbolButton components to display available symbols in a 3-column grid
-   - When a symbol is clicked, calls onSelectSymbol which updates state in App.tsx
-
-5. **BurgerMenu.tsx**:
-   - Receives isOpen state and callback functions from App.tsx
-   - When menu items are clicked, triggers the appropriate callback function
+### BurgerMenu Component
+- **Files:** `components/BurgerMenu.tsx`, `components/BurgerMenu.module.css`
+- **Purpose:** A full-screen menu providing access to main app actions.
+- **Props (Inputs):**
+  - `isOpen: boolean`: Controls if the menu is visible.
+  - `onClose: () => void`: Callback function to close the menu.
+  - `onSelectOption: (option: 'now' | 'next' | 'sequence') => void`: Callback triggered when "Choose Now", "Choose Next", or "Create Sequence" is clicked.
+  - `onFinishNow: () => void`: Callback triggered when "Finish Now" is clicked.
+  - `onFeedSequence: () => void`: Callback triggered when "Feed Sequence" is clicked.
+- **Interactions (Outputs):**
+  - Calls `onClose` when the close button is clicked.
+  - Calls the appropriate callback (`onSelectOption`, `onFinishNow`, `onFeedSequence`) when a menu button is clicked.
 
 ## Data Flow
 
-1. User clicks on "Now" or "Next" card → opens symbol selection popup
-2. User selects a symbol → updates nowSymbol or nextSymbol state in App.tsx
-3. Updated state is passed to ActivityCard → displays the selected symbol
+1.  User clicks on "Now" `ActivityCard` -> `ActivityCard` calls its `onClick` prop -> `App.tsx` calls `openPopup('now')` -> `SymbolSelectionPopup` opens for 'now'.
+2.  User clicks a `SymbolButton` in the popup -> `SymbolButton` calls its `onClick` prop -> `SymbolSelectionPopup` calls its `onSelectSymbol` prop -> `App.tsx` calls `handleSelectSymbol` -> updates `nowSymbol` state and closes popup.
+3.  `App.tsx` re-renders, passing the new `nowSymbol` to the "Now" `ActivityCard`.
 
 ## Symbols
 

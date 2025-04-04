@@ -69,3 +69,36 @@
     font-size: 1.5rem;
   }
 }
+
+/* Styles for the focused 'Now' card */
+.focusCard {
+  background-color: #e8f5e9; /* Subtle light GREEN background tint */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+  border: 1px solid #c8e6c9; /* Optional: slightly darker green border */
+  /* Apply the gentle pulse animation */
+  animation: gentlePulse 1.8s infinite alternate ease-in-out; /* Slightly faster duration */
+}
+
+.focusCard:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Even more shadow on hover */
+  /* Optionally pause or keep animation on hover */
+  /* animation-play-state: paused; */
+}
+
+.focusCard h2 {
+  color: #2e7d32; /* Darker green title for focus */
+}
+
+/* Define the more pronounced pulse animation */
+@keyframes gentlePulse {
+  from {
+    /* Start with the base focus shadow */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transform: scale(1); /* Start at normal scale */
+  }
+  to {
+    /* Increase shadow spread, blur, and opacity, and add slight scale */
+    box-shadow: 0 10px 25px 5px rgba(76, 175, 80, 0.3); /* Green shadow */
+    transform: scale(1.02); /* Slightly scale up */
+  }
+}

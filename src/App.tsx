@@ -80,11 +80,13 @@ const App = () => {
           title="Now" 
           symbolFilename={nowSymbol} 
           onClick={() => openPopup('now')} 
+          isFocus={true} // Add isFocus prop to the "Now" card
         />
         <ActivityCard 
           title="Next" 
           symbolFilename={nextSymbol} 
           onClick={() => openPopup('next')} 
+          // No isFocus prop for the "Next" card
         />
       </div>
 

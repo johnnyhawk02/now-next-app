@@ -4,13 +4,17 @@ import styles from './SymbolButton.module.css';
 interface SymbolButtonProps {
   symbolName: string;
   onClick: (e: React.MouseEvent) => void;
+  isNow?: boolean; // New prop to indicate if this is the 'now' symbol
 }
 
-const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick }) => {
+const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick, isNow = false }) => {
+  // Determine CSS classes based on isNow prop
+  const buttonClasses = `${styles.symbolButton} ${isNow ? styles.nowSymbol : ''}`;
+  
   return (
     <button 
       onClick={onClick} 
-      className={styles.symbolButton}
+      className={buttonClasses}
     >
       <img 
         className={styles.symbolImage}
@@ -18,6 +22,7 @@ const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick }) => {
         alt={symbolName.split('.')[0]} 
       />
       <span className={styles.symbolName}>{symbolName.split('.')[0].replace(/[-_]/g, ' ')}</span>
+      {isNow && <div className={styles.nowIndicator}>NOW</div>}
     </button>
   );
 };
