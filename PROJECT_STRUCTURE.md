@@ -6,9 +6,9 @@ This document provides an overview of the Now-Next application structure, explai
 
 - **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `sequence`, `isPopupOpen`, `isMenuOpen`) and renders the primary UI.
 - **App.module.css**: Component-specific styles for the App component.
-- **main.tsx**: Entry point for the React application, includes standalone mode detection for iOS.
-- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations and base element styling.
-- **index.html**: Main HTML file with mobile meta tags, PWA configurations, and the root div (`#root`).
+- **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS and necessary type assertions for non-standard properties (`standalone`, `scale`).
+- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations, base element styling, and custom animations (`fadeIn`, `scaleIn`).
+- **index.html**: Main HTML file with mobile meta tags (including `mobile-web-app-capable`), PWA configurations, and the root div (`#root`).
 - **manifest.json**: PWA manifest file for home screen installation on mobile devices.
 
 ## Component Structure & Interactions
@@ -23,7 +23,7 @@ This section details each component, its props (inputs), and how it interacts wi
   - `sequence: string[]`: Array of symbol filenames for the activity sequence.
   - `isMenuOpen: boolean`: Controls the visibility of the burger menu.
 - **Renders:**
-  - `ActivityCard` (x2): For "Now" and "Next".
+  - `ActivityCard` (x2): For "Now" and "Next". Passes `isFocus={true}` to the "Now" card.
   - `BurgerMenu`: The main menu.
   - `SymbolSelectionPopup`: The popup for choosing symbols.
 - **Provides Callbacks:**
@@ -39,7 +39,7 @@ This section details each component, its props (inputs), and how it interacts wi
   - `title: string`: The title of the card ("Now" or "Next").
   - `symbolFilename: string | null`: The filename of the symbol to display.
   - `onClick?: () => void`: Callback function triggered when the card is clicked.
-  - `isFocus?: boolean`: If true, applies focus styling (used for the "Now" card).
+  - `isFocus?: boolean`: If true, applies focus styling (green background, enhanced pulsing shadow via `.focusCard` class).
 - **Interactions (Outputs):**
   - Calls the `onClick` prop when the card div is clicked (used by `App.tsx` to trigger `openPopup`).
 
@@ -49,7 +49,7 @@ This section details each component, its props (inputs), and how it interacts wi
 - **Props (Inputs):**
   - `symbolName: string`: The filename of the symbol.
   - `onClick: (e: React.MouseEvent) => void`: Callback function triggered when the button is clicked.
-  - `isNow?: boolean`: If true, applies special styling (currently used for a 'NOW' badge and pulsing effect, though the effect is applied to the card now).
+  - `isNow?: boolean`: If true, applies special styling (currently adds a 'NOW' badge via `.nowIndicator` class).
 - **Interactions (Outputs):**
   - Calls the `onClick` prop when the button is clicked (used by `SymbolSelectionPopup` to trigger `handleSelectSymbol`).
 
@@ -139,15 +139,16 @@ The app is optimized for iPhone and other mobile devices with:
 ## CSS Structure
 
 The project uses CSS Modules for component-scoped styling:
-- Each component has its own `.module.css` file
-- Global styles are in `index.css` with mobile optimizations
-- Custom animations for UI interactions
+- Each component has its own `.module.css` file (e.g., `ActivityCard.module.css`).
+- Global styles are in `index.css` with mobile optimizations.
+- Custom animations (`fadeIn`, `scaleIn`, `gentlePulse`) are defined in `index.css` and `ActivityCard.module.css`.
 
 ## Technical Implementation
 
-- Built with React + TypeScript
-- Uses Vite as the build tool
-- CSS Modules for scoped styling
-- Interactive UI with popups and clickable components
-- Progressive Web App (PWA) capabilities
-- Mobile optimization for iOS devices
+- Built with React + TypeScript.
+- Uses Vite as the build tool.
+- CSS Modules for scoped styling.
+- Interactive UI with popups and clickable components.
+- Progressive Web App (PWA) capabilities.
+- Mobile optimization for iOS devices.
+- Recent TypeScript fixes applied (unused variables, type assertions for non-standard properties).
