@@ -321,3 +321,18 @@ button:active {
 .menu-content button:hover {
   background: #2980b9;
 }
+
+/* Symbol grid styles for 3-column layout */
+.symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0 auto 1rem;
+}
+
+@media (max-width: 480px) {
+  .symbol-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,4 +1,5 @@
 import { FC, SyntheticEvent } from 'react';
+import styles from './ActivityCard.module.css';
 
 // Define props interface
 interface ActivityCardProps {
@@ -13,12 +14,12 @@ const ActivityCard: FC<ActivityCardProps> = ({ title, symbolFilename, onClick })
     : ''; // No placeholder, will show empty state
 
   // Handle potential image loading errors
-  const handleError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleError = (_: SyntheticEvent<HTMLImageElement, Event>) => {
     console.warn(`Error loading image: ${imageSrc}`);
   };
 
   return (
-    <div className="card" onClick={onClick}>
+    <div className={styles.card} onClick={onClick}>
       <h2>{title}</h2>
       <div>
         {symbolFilename ? (
@@ -29,7 +30,7 @@ const ActivityCard: FC<ActivityCardProps> = ({ title, symbolFilename, onClick })
             onError={handleError}
           />
         ) : (
-          <div className="text-gray-400">
+          <div>
             <p>No activity selected</p>
           </div>
         )}
