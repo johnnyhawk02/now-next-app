@@ -9,8 +9,10 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 
+           max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
   pointer-events: auto;
+  animation: fadeIn 0.3s ease;
 }
 
 .popupContent {
@@ -19,10 +21,14 @@
   padding: 1rem;
   width: 100%;
   max-width: 90%;
+  max-height: 85vh; /* Ensure it fits on screen */
+  overflow-y: auto; /* Enable scrolling if needed */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
   z-index: 1005;
+  animation: scaleIn 0.3s ease-out;
 }
 
 .popupTitle {
@@ -41,24 +47,31 @@
 
 .closeButton {
   margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   border: none;
   border-radius: 0.5rem;
   background: #e74c3c;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  /* Make button larger and more touch-friendly for mobile */
+  min-height: 44px;
+  min-width: 100px;
 }
 
 .closeButton:hover {
   background: #c0392b;
 }
 
+.closeButton:active {
+  transform: scale(0.96);
+}
+
 .sequenceInfo {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   background: #f0f0f0;
-  padding: 0.3rem;
+  padding: 0.5rem;
   margin-top: 0.5rem;
   border-radius: 4px;
 }
@@ -66,5 +79,11 @@
 @media (max-width: 480px) {
   .symbolGrid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .popupContent {
+    max-width: 95%;
+    padding: 0.75rem;
   }
 }
