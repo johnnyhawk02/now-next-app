@@ -94,6 +94,7 @@ Symbols are stored in `public/symbols/` and include:
 - bunk beds.png
 - dream machine.png
 - finished.png
+- pyjamas.png
 
 ## Mobile Optimization
 

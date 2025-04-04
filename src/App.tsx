@@ -9,6 +9,7 @@ const AVAILABLE_SYMBOLS = [
   'brush teeth girl.png',
   'bunk beds.png',
   'dream machine.png',
+  'pyjamas.png' // Added the new symbol
 ];
 
 const App = () => {
