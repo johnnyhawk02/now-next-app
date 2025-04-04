@@ -34,6 +34,7 @@
   object-fit: contain;
   margin-bottom: 0.5rem;
   /* Prevent image highlighting on iOS */
+  user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
@@ -46,6 +47,7 @@
   /* For long symbol names */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   max-width: 100%;
