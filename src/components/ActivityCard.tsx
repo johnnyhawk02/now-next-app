@@ -1,4 +1,4 @@
-import { FC, SyntheticEvent } from 'react';
+import { FC } from 'react';
 import styles from './ActivityCard.module.css';
 
 // Define props interface

@@ -6,8 +6,10 @@ This document provides an overview of the Now-Next application structure, explai
 
 - **App.tsx**: The main application component that manages the overall state and renders the primary UI
 - **App.module.css**: Component-specific styles for the App component
-- **main.tsx**: Entry point for the React application
-- **index.css**: Global CSS styles that apply across the entire application
+- **main.tsx**: Entry point for the React application, includes standalone mode detection for iOS
+- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations
+- **index.html**: Main HTML file with mobile meta tags and PWA configurations
+- **manifest.json**: PWA manifest file for home screen installation on mobile devices
 
 ## Component Structure
 
@@ -17,7 +19,7 @@ This document provides an overview of the Now-Next application structure, explai
 
 ### Symbol Button Component
 - **components/SymbolButton.tsx**: Reusable button component that displays a symbol with its name
-- **components/SymbolButton.module.css**: Styles for the symbol buttons
+- **components/SymbolButton.module.css**: Styles for the symbol buttons with touch-friendly optimizations
 
 ### Symbol Selection Popup Component
 - **components/SymbolSelectionPopup.tsx**: Popup that allows users to select symbols for Now, Next, or Sequence
@@ -25,7 +27,7 @@ This document provides an overview of the Now-Next application structure, explai
 
 ### Burger Menu Component
 - **components/BurgerMenu.tsx**: Menu that provides access to app functions (Choose Now/Next, Finish Now, etc.)
-- **components/BurgerMenu.module.css**: Styles for the burger menu
+- **components/BurgerMenu.module.css**: Styles for the burger menu with mobile-friendly interactions
 
 ## Component Interactions
 
@@ -68,6 +70,30 @@ Symbols are stored in `public/symbols/` and include:
 - dream machine.png
 - finished.png
 
+## Mobile Optimization
+
+The app is optimized for iPhone and other mobile devices with:
+
+1. **iOS PWA Support**:
+   - Configured as a Progressive Web App for home screen installation
+   - `manifest.json` for proper icon display and full-screen experience
+   - Apple-specific meta tags in `index.html` for iOS web app capabilities
+
+2. **Full-Screen Mode**:
+   - Standalone mode detection in `main.tsx`
+   - CSS optimizations for iPhone notches and home indicators
+   - Safe area inset padding with `env()` variables
+
+3. **Touch Optimizations**:
+   - Appropriate button sizes for touch targets (minimum 44px)
+   - Disabled unwanted behaviors like tap highlighting and double-tap zooming
+   - Touch-specific interaction feedback
+
+4. **iOS-Specific Features**:
+   - Prevents bounce/scroll on iOS
+   - Optimized for iOS safe areas
+   - Proper home screen icon and startup image
+
 ## Key Features
 
 1. **Activity Management**:
@@ -79,16 +105,17 @@ Symbols are stored in `public/symbols/` and include:
    - Feed from the sequence to automatically update Now/Next
 
 3. **UI Features**:
-   - Responsive design that works on different screen sizes
+   - Responsive design for all screen sizes from desktop to mobile
    - 3-column grid for symbol selection
    - CSS Modules for component-specific styling and preventing style conflicts
+   - Mobile-first design with touch-friendly interactions
 
 ## CSS Structure
 
 The project uses CSS Modules for component-scoped styling:
 - Each component has its own `.module.css` file
-- Global styles are in `index.css`
-- Legacy styles may remain in `styles.css` (can be migrated to modules)
+- Global styles are in `index.css` with mobile optimizations
+- Custom animations for UI interactions
 
 ## Technical Implementation
 
@@ -96,3 +123,5 @@ The project uses CSS Modules for component-scoped styling:
 - Uses Vite as the build tool
 - CSS Modules for scoped styling
 - Interactive UI with popups and clickable components
+- Progressive Web App (PWA) capabilities
+- Mobile optimization for iOS devices
