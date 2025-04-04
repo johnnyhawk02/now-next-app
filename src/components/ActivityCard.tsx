@@ -14,7 +14,7 @@ const ActivityCard: FC<ActivityCardProps> = ({ title, symbolFilename, onClick })
     : ''; // No placeholder, will show empty state
 
   // Handle potential image loading errors
-  const handleError = (_: SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleError = () => {
     console.warn(`Error loading image: ${imageSrc}`);
   };
 
