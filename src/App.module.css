@@ -136,13 +136,19 @@
   display: inline-block;
   width: 40px;
   height: 20px;
-  z-index: 9999;
+  /* Increase z-index dramatically to ensure it's absolutely on top */
+  z-index: 10000;
   pointer-events: auto;
   -webkit-transform: translate3d(0,0,0);
   transform: translate3d(0,0,0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   will-change: transform;
+  /* Add these to ensure visibility */
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .editModeToggle {

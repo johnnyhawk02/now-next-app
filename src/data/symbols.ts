@@ -68,7 +68,7 @@ export const SYMBOLS: Symbol[] = [
     id: 'bottle',
     filename: 'bottle.png',
     displayName: 'Bottle',
-    categories: [CATEGORIES.MEALTIME],
+    categories: [CATEGORIES.MORNING, CATEGORIES.MEALTIME, CATEGORIES.BEDTIME, CATEGORIES.ACTIVITIES],
   },
   
   // Bedtime

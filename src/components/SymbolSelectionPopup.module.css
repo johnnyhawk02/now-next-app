@@ -8,11 +8,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1000; /* Keep this below the edit toggle z-index */
   padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 
            max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
   pointer-events: auto;
   animation: fadeIn 0.3s ease;
+}
+
+/* Create a cutout for the edit toggle in the top right */
+.popupOverlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  pointer-events: none;
 }
 
 .popupContent {
