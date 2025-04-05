@@ -12,6 +12,7 @@ const AVAILABLE_SYMBOLS = [
   'brush hair.png',
   'get dressed.png',
   'get dressed for school.png',
+  'toilet.png',
 ];
 
 const App = () => {
