@@ -2,13 +2,9 @@ import { useState, useEffect } from 'react';
 import ActivityCard from './components/ActivityCard.tsx';
 import SymbolSelectionPopup from './components/SymbolSelectionPopup.tsx';
 import { 
-  SYMBOLS,
-  CATEGORIES, 
   getAllCategories, 
   getSymbolsByCategory, 
-  getAllFilenames,
-  getSymbolByFilename
-} from './data/symbols';
+  getAllFilenames} from './data/symbols';
 import styles from './App.module.css';
 
 const App = () => {
