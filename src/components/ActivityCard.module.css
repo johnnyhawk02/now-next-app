@@ -75,8 +75,8 @@
   background-color: #e8f5e9; /* Subtle light GREEN background tint */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
   border: 1px solid #c8e6c9; /* Optional: slightly darker green border */
-  /* Apply the gentle pulse animation */
-  animation: gentlePulse 1.8s infinite alternate ease-in-out; /* Slightly faster duration */
+  /* More gentle animation with longer duration */
+  animation: gentlePulse 3s ease-in-out infinite;
 }
 
 .focusCard:hover {
@@ -91,15 +91,17 @@
 
 /* Define the more pronounced pulse animation */
 @keyframes gentlePulse {
-  from {
-    /* Start with the base focus shadow */
+  0% {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    transform: scale(1); /* Start at normal scale */
+    transform: scale(1);
   }
-  to {
-    /* Increase shadow spread, blur, and opacity, and add more scale */
-    box-shadow: 0 12px 30px 8px rgba(76, 175, 80, 0.4); /* More intense shadow */
-    transform: scale(1.1); /* Larger scale */
+  50% {
+    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.25);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transform: scale(1);
   }
 }
 
