@@ -10,7 +10,7 @@ interface SymbolButtonProps {
 const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick, isNow = false }) => {
   // Determine CSS classes based on isNow prop
   const buttonClasses = `${styles.symbolButton} ${isNow ? styles.nowSymbol : ''}`;
-  
+
   return (
     <button 
       onClick={onClick} 
@@ -21,7 +21,6 @@ const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick, isNow 
         src={`/symbols/${symbolName}`} 
         alt={symbolName.split('.')[0]} 
       />
-      <span className={styles.symbolName}>{symbolName.split('.')[0].replace(/[-_]/g, ' ')}</span>
       {isNow && <div className={styles.nowIndicator}>NOW</div>}
     </button>
   );

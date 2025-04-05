@@ -1,13 +1,66 @@
-# React + TypeScript + Vite
+# Now & Next App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a React + TypeScript application built with Vite. It is designed to help users plan and manage activities using visual symbols for "Now" and "Next" tasks.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Activity Management**: Set "Now" and "Next" activities using symbols.
+- **Symbol Selection**: Choose from a variety of symbols to represent tasks.
+- **Responsive Design**: Optimized for both desktop and mobile devices.
+- **Progressive Web App (PWA)**: Installable on mobile devices for a native-like experience.
 
-## Expanding the ESLint configuration
+## File Structure
+
+```
+public/
+  symbols/          # Contains all the activity symbols (e.g., bath.png, pyjamas.png)
+  manifest.json     # PWA configuration
+src/
+  components/       # Reusable React components (e.g., ActivityCard, SymbolButton)
+  App.tsx           # Main application component
+  index.css         # Global styles
+  main.tsx          # Application entry point
+  vite-env.d.ts     # TypeScript environment definitions
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js (v16 or later)
+- npm or yarn
+
+### Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Open the app in your browser at `http://localhost:5173`.
+
+### Building for Production
+
+To create a production build:
+```bash
+npm run build
+```
+
+The build output will be in the `dist/` directory.
+
+### Linting
+
+This project uses ESLint for code quality. To run the linter:
+```bash
+npm run lint
+```
+
+## Expanding the ESLint Configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
@@ -52,3 +105,7 @@ export default tseslint.config({
   },
 })
 ```
+
+## License
+
+This project is licensed under the MIT License.

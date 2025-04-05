@@ -102,3 +102,17 @@
     transform: scale(1.1); /* Larger scale */
   }
 }
+
+.symbolText {
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.placeholderText {
+  font-size: 1rem;
+  color: #aaa;
+  text-align: center;
+  margin-top: 0.5rem;
+}

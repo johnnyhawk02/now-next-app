@@ -7,9 +7,14 @@ const AVAILABLE_SYMBOLS = [
   'bath.png',
   'bedtime song bunk beds.png',
   'bedtime song.png',
+  'bottle.png',
   'brush hair.png',
   'brush teeth girl.png',
   'bunk beds.png',
+  'car.png',
+  'cheese on toast.png',
+  'Chloe.png',
+  'dinner time.png',
   'dream machine.png',
   'easter egg.png',
   'finished.png',
@@ -23,17 +28,15 @@ const AVAILABLE_SYMBOLS = [
   'toilet.png'
 ];
 
+// Restored isEditMode state and toggle functionality, but removed the text
 const App = () => {
+  const [isEditMode, setIsEditMode] = useState(false);
   const [nowSymbol, setNowSymbol] = useState<string | null>(null);
   const [nextSymbol, setNextSymbol] = useState<string | null>(null);
-  const [isPopupOpen, setIsPopupOpen] = useState<'now' | 'next' | null>(null); // Removed 'sequence' type
+  const [isPopupOpen, setIsPopupOpen] = useState<'now' | 'next' | null>(null);
 
-  // Handler for symbol selection
   const handleSelectSymbol = (e: React.MouseEvent, symbolName: string) => {
     e.stopPropagation();
-
-    console.log(`Symbol selected: ${symbolName}`);
-    console.log(`Popup type: ${isPopupOpen}`);
 
     if (isPopupOpen === 'now') {
       setNowSymbol(symbolName);
@@ -44,12 +47,10 @@ const App = () => {
     }
   };
 
-  // Handler for opening popups - removed 'sequence' type
   const openPopup = (type: 'now' | 'next') => {
     setIsPopupOpen(type);
   };
 
-  // Initialize with default symbols if needed
   useEffect(() => {
     if (!nextSymbol && !nowSymbol) {
       setNextSymbol(AVAILABLE_SYMBOLS[0]);
@@ -59,21 +60,33 @@ const App = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Activity Planner</h1>
+
+      <label className={styles.editModeToggleLabel}>
+        <input
+          type="checkbox"
+          className={styles.editModeToggle}
+          checked={isEditMode}
+          onChange={() => setIsEditMode(!isEditMode)}
+        />
+        <span className={styles.toggleSlider}></span>
+      </label>
+
       <div className={styles.grid}>
         <ActivityCard
           title="Now"
           symbolFilename={nowSymbol}
           onClick={() => openPopup('now')}
           isFocus={true}
+          isEditMode={isEditMode}
         />
         <ActivityCard
           title="Next"
           symbolFilename={nextSymbol}
           onClick={() => openPopup('next')}
+          isEditMode={isEditMode}
         />
       </div>
 
-      {/* Symbol Selection Popup Component - removed sequence props */}
       <SymbolSelectionPopup
         isOpen={isPopupOpen !== null}
         popupType={isPopupOpen}

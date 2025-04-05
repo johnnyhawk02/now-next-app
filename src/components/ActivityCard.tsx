@@ -1,46 +1,45 @@
-import { FC } from 'react';
+import React from 'react';
 import styles from './ActivityCard.module.css';
 
-// Define props interface
 interface ActivityCardProps {
   title: string;
-  symbolFilename: string | null; // Can be string or null
-  onClick?: () => void; // Add onClick prop
-  isFocus?: boolean; // New prop to indicate focus
+  symbolFilename: string | null;
+  onClick?: () => void;
+  isFocus?: boolean;
+  isEditMode?: boolean;
 }
 
-const ActivityCard: FC<ActivityCardProps> = ({ title, symbolFilename, onClick, isFocus = false }) => {
-  const imageSrc = symbolFilename
-    ? `/symbols/${symbolFilename}`
-    : ''; // No placeholder, will show empty state
-
-  // Handle potential image loading errors
-  const handleError = () => {
-    console.warn(`Error loading image: ${imageSrc}`);
-  };
-
-  // Conditionally apply focus styles
-  const cardClasses = `${styles.card} ${isFocus ? styles.focusCard : ''}`;
-
+const ActivityCard: React.FC<ActivityCardProps> = ({
+  title,
+  symbolFilename,
+  onClick,
+  isFocus,
+  isEditMode,
+}) => {
   return (
-    <div className={cardClasses} onClick={onClick}>
-      <h2>{title}</h2>
-      <div>
+    <div className={styles.container}>
+      <div className={styles.toggleContainer}>
+        <label className={styles.toggleLabel}>
+   
+        </label>
+      </div>
+      <div
+        className={`${styles.card} ${isFocus ? styles.focusCard : ''}`}
+        onClick={isEditMode ? onClick : undefined}
+      >
         {symbolFilename ? (
           <img
-            key={imageSrc}
-            src={imageSrc}
-            alt={`${title} activity: ${symbolFilename}`}
-            onError={handleError}
+            src={`/symbols/${symbolFilename}`}
+            alt={title}
+            className={styles.symbolImage}
           />
         ) : (
-          <div>
-            <p>No activity selected</p>
-          </div>
+          <p className={styles.placeholderText}>No Symbol</p>
         )}
+        <h2>{title}</h2>
       </div>
     </div>
   );
-}
+};
 
 export default ActivityCard;

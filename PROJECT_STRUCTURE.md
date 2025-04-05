@@ -1,36 +1,33 @@
 # Now-Next App Project Structure
 
-This document provides an overview of the Now-Next application structure, explaining the purpose of each file and how components interact with each other.
+This document provides an overview of the Now-Next application structure, explaining the purpose of each file and how components interact with each other. It is tailored to assist AI in understanding the app's architecture and functionality.
 
 ## Main Application Files
 
-- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `sequence`, `isPopupOpen`, `isMenuOpen`) and renders the primary UI.
-- **App.module.css**: Component-specific styles for the App component.
-- **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS and necessary type assertions for non-standard properties (`standalone`, `scale`).
-- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations, base element styling, and custom animations (`fadeIn`, `scaleIn`).
-- **index.html**: Main HTML file with mobile meta tags (including `mobile-web-app-capable`), PWA configurations, and the root div (`#root`).
+- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`) and renders the primary UI.
+- **App.module.css**: Component-specific styles for the App component, including styles for the Edit Mode toggle switch.
+- **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
+- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations and base element styling.
+- **index.html**: Main HTML file with mobile meta tags, PWA configurations, and the root div (`#root`).
 - **manifest.json**: PWA manifest file for home screen installation on mobile devices.
 
-## Component Structure & Interactions
-
-This section details each component, its props (inputs), and how it interacts with its parent (outputs/callbacks).
+## Component Structure & Responsibilities
 
 ### App.tsx
 - **State Managed:**
   - `nowSymbol: string | null`: Filename of the symbol for the "Now" activity.
   - `nextSymbol: string | null`: Filename of the symbol for the "Next" activity.
-  - `isPopupOpen: 'now' | 'next' | 'sequence' | null`: Controls which symbol selection popup is open.
-  - `sequence: string[]`: Array of symbol filenames for the activity sequence.
-  - `isMenuOpen: boolean`: Controls the visibility of the burger menu.
+  - `isPopupOpen: 'now' | 'next' | null`: Controls which symbol selection popup is open.
+  - `isEditMode: boolean`: Tracks whether the app is in edit mode or view mode.
 - **Renders:**
-  - `ActivityCard` (x2): For "Now" and "Next". Passes `isFocus={true}` to the "Now" card.
-  - `BurgerMenu`: The main menu.
+  - `ActivityCard` (x2): For "Now" and "Next".
   - `SymbolSelectionPopup`: The popup for choosing symbols.
-- **Provides Callbacks:**
-  - `openPopup`: Opens the symbol selection popup for 'now', 'next', or 'sequence'.
-  - `handleSelectSymbol`: Updates `nowSymbol`, `nextSymbol`, or `sequence` based on popup type.
-  - `handleFinishNow`: Moves `nextSymbol` to `nowSymbol`.
-  - `handleFeedSequence`: Takes symbols from `sequence` and puts them into `nowSymbol` and `nextSymbol`.
+  - Edit Mode toggle switch: A toggle switch in the top-right corner to enable or disable edit mode.
+- **Responsibilities:**
+  - Manages the main state of the application.
+  - Handles user interactions for selecting symbols.
+  - Toggles between edit and view modes using the Edit Mode toggle switch.
+  - Initializes default symbols if none are selected.
 
 ### ActivityCard Component
 - **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
@@ -40,8 +37,11 @@ This section details each component, its props (inputs), and how it interacts wi
   - `symbolFilename: string | null`: The filename of the symbol to display.
   - `onClick?: () => void`: Callback function triggered when the card is clicked.
   - `isFocus?: boolean`: If true, applies focus styling (green background, enhanced pulsing shadow via `.focusCard` class).
-- **Interactions (Outputs):**
-  - Calls the `onClick` prop when the card div is clicked (used by `App.tsx` to trigger `openPopup`).
+  - `isEditMode: boolean`: Determines whether the card is clickable (edit mode) or displays symbol text (view mode).
+- **Responsibilities:**
+  - Displays the symbol and title for the activity.
+  - Triggers the parent callback when clicked in edit mode.
+  - Displays the symbol text in view mode.
 
 ### SymbolButton Component
 - **Files:** `components/SymbolButton.tsx`, `components/SymbolButton.module.css`
@@ -49,106 +49,85 @@ This section details each component, its props (inputs), and how it interacts wi
 - **Props (Inputs):**
   - `symbolName: string`: The filename of the symbol.
   - `onClick: (e: React.MouseEvent) => void`: Callback function triggered when the button is clicked.
-  - `isNow?: boolean`: If true, applies special styling (currently adds a 'NOW' badge via `.nowIndicator` class).
-- **Interactions (Outputs):**
-  - Calls the `onClick` prop when the button is clicked (used by `SymbolSelectionPopup` to trigger `handleSelectSymbol`).
+- **Responsibilities:**
+  - Displays a symbol with its name.
+  - Triggers the parent callback when clicked.
 
 ### SymbolSelectionPopup Component
 - **Files:** `components/SymbolSelectionPopup.tsx`, `components/SymbolSelectionPopup.module.css`
 - **Purpose:** A modal popup for selecting symbols.
 - **Props (Inputs):**
   - `isOpen: boolean`: Controls if the popup is visible.
-  - `popupType: 'now' | 'next' | 'sequence' | null`: Determines the title and behavior of the popup.
+  - `popupType: 'now' | 'next' | null`: Determines the title and behavior of the popup.
   - `onClose: () => void`: Callback function to close the popup.
   - `onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void`: Callback function triggered when a `SymbolButton` inside is clicked.
   - `availableSymbols: string[]`: List of symbol filenames to display.
-  - `sequenceLength?: number`: The current length of the sequence (used for display when `popupType` is 'sequence').
-- **Interactions (Outputs):**
-  - Calls `onClose` when the overlay or close button is clicked.
-  - Calls `onSelectSymbol` when a `SymbolButton` is clicked, passing the event and symbol name.
+- **Responsibilities:**
+  - Displays a grid of symbols for selection.
+  - Triggers the parent callback when a symbol is selected.
 
-### BurgerMenu Component
-- **Files:** `components/BurgerMenu.tsx`, `components/BurgerMenu.module.css`
-- **Purpose:** A full-screen menu providing access to main app actions.
-- **Props (Inputs):**
-  - `isOpen: boolean`: Controls if the menu is visible.
-  - `onClose: () => void`: Callback function to close the menu.
-  - `onSelectOption: (option: 'now' | 'next' | 'sequence') => void`: Callback triggered when "Choose Now", "Choose Next", or "Create Sequence" is clicked.
-  - `onFinishNow: () => void`: Callback triggered when "Finish Now" is clicked.
-  - `onFeedSequence: () => void`: Callback triggered when "Feed Sequence" is clicked.
-- **Interactions (Outputs):**
-  - Calls `onClose` when the close button is clicked.
-  - Calls the appropriate callback (`onSelectOption`, `onFinishNow`, `onFeedSequence`) when a menu button is clicked.
+## State Flow
 
-## Data Flow
+1. **Initialization:**
+   - `App.tsx` initializes `nowSymbol` and `nextSymbol` with default values from `AVAILABLE_SYMBOLS` if they are not already set.
 
-1.  User clicks on "Now" `ActivityCard` -> `ActivityCard` calls its `onClick` prop -> `App.tsx` calls `openPopup('now')` -> `SymbolSelectionPopup` opens for 'now'.
-2.  User clicks a `SymbolButton` in the popup -> `SymbolButton` calls its `onClick` prop -> `SymbolSelectionPopup` calls its `onSelectSymbol` prop -> `App.tsx` calls `handleSelectSymbol` -> updates `nowSymbol` state and closes popup.
-3.  `App.tsx` re-renders, passing the new `nowSymbol` to the "Now" `ActivityCard`.
+2. **User Interaction:**
+   - Clicking on the "Now" or "Next" card opens the `SymbolSelectionPopup` in edit mode.
+   - Selecting a symbol in the popup updates the corresponding state (`nowSymbol` or `nextSymbol`).
 
-## Symbols
+3. **Reactivity:**
+   - Changes to `nowSymbol` or `nextSymbol` automatically update the corresponding `ActivityCard`.
 
-Symbols are stored in `public/symbols/` and include:
-- bath.png
-- brush teeth girl.png
-- bunk beds.png
-- dream machine.png
-- finished.png
-- pyjamas.png
+4. **Edit Mode Toggle:**
+   - The Edit Mode toggle switch enables or disables edit mode.
+   - In edit mode, cards are clickable and open the symbol selection popup.
+   - In view mode, cards display the symbol text instead of being clickable.
 
-## Mobile Optimization
+## Symbol Management
 
-The app is optimized for iPhone and other mobile devices with:
+- **Directory:** All symbols are stored in `public/symbols/`.
+- **Usage:**
+  - Symbols are dynamically loaded into the app via the `AVAILABLE_SYMBOLS` array in `App.tsx`.
+  - Each symbol is represented by its filename (e.g., `bath.png`, `pyjamas.png`).
+- **Adding New Symbols:**
+  - Place the new symbol image in the `public/symbols/` directory.
+  - Update the `AVAILABLE_SYMBOLS` array in `App.tsx` to include the new symbol.
 
-1. **iOS PWA Support**:
-   - Configured as a Progressive Web App for home screen installation
-   - `manifest.json` for proper icon display and full-screen experience
-   - Apple-specific meta tags in `index.html` for iOS web app capabilities
+## Styling Overview
 
-2. **Full-Screen Mode**:
-   - Standalone mode detection in `main.tsx`
-   - CSS optimizations for iPhone notches and home indicators
-   - Safe area inset padding with `env()` variables
+- **CSS Modules:**
+  - Each component has its own `.module.css` file for scoped styling.
+  - Global styles are defined in `index.css`.
+- **Animations:**
+  - The "Now" card uses the `gentlePulse` animation for a zoom-in/out effect.
+  - The Edit Mode toggle switch uses smooth transitions for state changes.
 
-3. **Touch Optimizations**:
-   - Appropriate button sizes for touch targets (minimum 44px)
-   - Disabled unwanted behaviors like tap highlighting and double-tap zooming
-   - Touch-specific interaction feedback
+## Development Workflow
 
-4. **iOS-Specific Features**:
-   - Prevents bounce/scroll on iOS
-   - Optimized for iOS safe areas
-   - Proper home screen icon and startup image
+1. **Run the Development Server:**
+   ```bash
+   npm run dev
+   ```
+
+2. **Build for Production:**
+   ```bash
+   npm run build
+   ```
+
+3. **Lint the Code:**
+   ```bash
+   npm run lint
+   ```
 
 ## Key Features
 
-1. **Activity Management**:
-   - Set "Now" and "Next" activities using symbols
-   - Finish current activity and advance to next
-
-2. **Sequence Creation**:
-   - Create a sequence of activities
-   - Feed from the sequence to automatically update Now/Next
-
-3. **UI Features**:
-   - Responsive design for all screen sizes from desktop to mobile
-   - 3-column grid for symbol selection
-   - CSS Modules for component-specific styling and preventing style conflicts
-   - Mobile-first design with touch-friendly interactions
-
-## CSS Structure
-
-The project uses CSS Modules for component-scoped styling:
-- Each component has its own `.module.css` file (e.g., `ActivityCard.module.css`).
-- Global styles are in `index.css` with mobile optimizations.
-- Custom animations (`fadeIn`, `scaleIn`, `gentlePulse`) are defined in `index.css` and `ActivityCard.module.css`.
-
-## Technical Implementation
-
-- Built with React + TypeScript.
-- Uses Vite as the build tool.
-- CSS Modules for scoped styling.
-- Interactive UI with popups and clickable components.
-- Progressive Web App (PWA) capabilities.
-- Mobile optimization for iOS devices.
-- Recent TypeScript fixes applied (unused variables, type assertions for non-standard properties).
+1. **Activity Management:**
+   - Set "Now" and "Next" activities using symbols.
+2. **Symbol Selection:**
+   - Choose from a variety of symbols to represent tasks.
+3. **Responsive Design:**
+   - Optimized for both desktop and mobile devices.
+4. **Progressive Web App (PWA):**
+   - Installable on mobile devices for a native-like experience.
+5. **Edit Mode Toggle:**
+   - Easily switch between edit and view modes using the toggle switch.
