@@ -10,6 +10,11 @@ interface SymbolSelectionPopupProps {
   onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void;
   availableSymbols: string[];
   sequenceLength?: number;
+  categories?: string[];
+  activeCategory?: string | 'Favorites';
+  setActiveCategory?: (category: string | 'Favorites') => void;
+  favoriteSymbols?: string[];
+  toggleFavorite?: (symbolName: string) => void;
 }
 
 const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
@@ -18,7 +23,12 @@ const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
   onClose,
   onSelectSymbol,
   availableSymbols,
-  sequenceLength = 0
+  sequenceLength = 0,
+  categories = [],
+  activeCategory = 'Favorites',
+  setActiveCategory,
+  favoriteSymbols = [],
+  toggleFavorite
 }) => {
   if (!isOpen) return null;
   
@@ -37,12 +47,36 @@ const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
             </>
           )}
         </h2>
+        
+        {/* Categories tabs */}
+        {categories.length > 0 && (
+          <div className={styles.categoryTabs}>
+            <button 
+              className={`${styles.categoryTab} ${activeCategory === 'Favorites' ? styles.activeTab : ''}`}
+              onClick={() => setActiveCategory && setActiveCategory('Favorites')}
+            >
+              ⭐ Favorites
+            </button>
+            {categories.map(category => (
+              <button 
+                key={category}
+                className={`${styles.categoryTab} ${activeCategory === category ? styles.activeTab : ''}`}
+                onClick={() => setActiveCategory && setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        )}
+        
         <div className={styles.symbolGrid}>
           {availableSymbols.map((symbolName) => (
             <SymbolButton 
               key={symbolName} 
               symbolName={symbolName} 
               onClick={(e) => onSelectSymbol(e, symbolName)}
+              isFavorite={favoriteSymbols.includes(symbolName)}
+              onToggleFavorite={toggleFavorite ? () => toggleFavorite(symbolName) : undefined}
             />
           ))}
         </div>

@@ -1,39 +1,23 @@
 import { useState, useEffect } from 'react';
 import ActivityCard from './components/ActivityCard.tsx';
 import SymbolSelectionPopup from './components/SymbolSelectionPopup.tsx';
+import { 
+  SYMBOLS,
+  CATEGORIES, 
+  getAllCategories, 
+  getSymbolsByCategory, 
+  getAllFilenames,
+  getSymbolByFilename
+} from './data/symbols';
 import styles from './App.module.css';
 
-const AVAILABLE_SYMBOLS = [
-  'bath.png',
-  'bedtime song bunk beds.png',
-  'bedtime song.png',
-  'bottle.png',
-  'brush hair.png',
-  'brush teeth girl.png',
-  'bunk beds.png',
-  'car.png',
-  'cheese on toast.png',
-  'Chloe.png',
-  'dinner time.png',
-  'dream machine.png',
-  'easter egg.png',
-  'finished.png',
-  'get dressed for school.png',
-  'get dressed.png',
-  'ice lolly.png',
-  'ipad.png',
-  'pyjamas.png',
-  'sleep in bunk beds.png',
-  'sleep.png',
-  'toilet.png'
-];
-
-// Restored isEditMode state and toggle functionality, but removed the text
 const App = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [nowSymbol, setNowSymbol] = useState<string | null>(null);
   const [nextSymbol, setNextSymbol] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState<'now' | 'next' | null>(null);
+  const [favoriteSymbols, setFavoriteSymbols] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string | 'Favorites'>('Favorites');
 
   const handleSelectSymbol = (e: React.MouseEvent, symbolName: string) => {
     e.stopPropagation();
@@ -51,11 +35,44 @@ const App = () => {
     setIsPopupOpen(type);
   };
 
+  const toggleFavorite = (symbolName: string) => {
+    setFavoriteSymbols(prevFavorites => 
+      prevFavorites.includes(symbolName)
+        ? prevFavorites.filter(name => name !== symbolName)
+        : [...prevFavorites, symbolName]
+    );
+  };
+
+  // Get the symbols to display based on active category
+  const getDisplaySymbols = (): string[] => {
+    if (activeCategory === 'Favorites') {
+      return favoriteSymbols.length > 0 ? favoriteSymbols : getAllFilenames();
+    }
+    return getSymbolsByCategory(activeCategory).map(symbol => symbol.filename);
+  };
+
+  // Effect to initialize with default symbols if needed
   useEffect(() => {
-    if (!nextSymbol && !nowSymbol) {
-      setNextSymbol(AVAILABLE_SYMBOLS[0]);
+    const allFilenames = getAllFilenames();
+    if (!nextSymbol && !nowSymbol && allFilenames.length > 0) {
+      setNextSymbol(allFilenames[0]);
+    }
+    
+    // Load favorites from localStorage if available
+    const savedFavorites = localStorage.getItem('favoriteSymbols');
+    if (savedFavorites) {
+      try {
+        setFavoriteSymbols(JSON.parse(savedFavorites));
+      } catch (e) {
+        console.error('Failed to load favorites from localStorage', e);
+      }
     }
   }, [nowSymbol, nextSymbol]);
+
+  // Save favorites to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('favoriteSymbols', JSON.stringify(favoriteSymbols));
+  }, [favoriteSymbols]);
 
   return (
     <div className={styles.container}>
@@ -92,7 +109,12 @@ const App = () => {
         popupType={isPopupOpen}
         onClose={() => setIsPopupOpen(null)}
         onSelectSymbol={handleSelectSymbol}
-        availableSymbols={AVAILABLE_SYMBOLS}
+        availableSymbols={getDisplaySymbols()}
+        categories={getAllCategories()}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        favoriteSymbols={favoriteSymbols}
+        toggleFavorite={toggleFavorite}
       />
     </div>
   );

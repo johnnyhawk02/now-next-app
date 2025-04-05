@@ -5,9 +5,9 @@ This document provides an overview of the Now-Next application structure, explai
 ## Main Application Files
 
 - **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`) and renders the primary UI.
-- **App.module.css**: Component-specific styles for the App component, including styles for the Edit Mode toggle switch.
+- **App.module.css**: Component-specific styles for the App component, including styles for the Edit Mode toggle switch and layout.
 - **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
-- **index.css**: Global CSS styles that apply across the entire application, including mobile optimizations and base element styling.
+- **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
 - **index.html**: Main HTML file with mobile meta tags, PWA configurations, and the root div (`#root`).
 - **manifest.json**: PWA manifest file for home screen installation on mobile devices.
 
@@ -93,14 +93,27 @@ This document provides an overview of the Now-Next application structure, explai
   - Place the new symbol image in the `public/symbols/` directory.
   - Update the `AVAILABLE_SYMBOLS` array in `App.tsx` to include the new symbol.
 
-## Styling Overview
+## Styling Architecture
 
 - **CSS Modules:**
-  - Each component has its own `.module.css` file for scoped styling.
-  - Global styles are defined in `index.css`.
-- **Animations:**
-  - The "Now" card uses the `gentlePulse` animation for a zoom-in/out effect.
-  - The Edit Mode toggle switch uses smooth transitions for state changes.
+  - Each component has its own `.module.css` file for component-scoped styling:
+    - `App.module.css`: Layout and edit mode toggle styles
+    - `ActivityCard.module.css`: Card styling and animations
+    - `SymbolButton.module.css`: Button and image styles
+    - `SymbolSelectionPopup.module.css`: Popup and grid layout styles
+  - CSS Modules ensure styles are scoped to their components and prevent conflicts
+- **Global Styles:**
+  - `index.css` contains only:
+    - Global resets and defaults
+    - Base typography styles
+    - Shared animations (fadeIn, scaleIn)
+    - PWA-specific styles
+    - iOS safe area handling
+- **Mobile Optimization:**
+  - Touch-friendly button sizes
+  - iOS-specific fixes for tap highlights and scrolling
+  - Safe area inset padding for notched devices
+  - Standalone mode optimizations for PWA
 
 ## Development Workflow
 
@@ -131,3 +144,55 @@ This document provides an overview of the Now-Next application structure, explai
    - Installable on mobile devices for a native-like experience.
 5. **Edit Mode Toggle:**
    - Easily switch between edit and view modes using the toggle switch.
+
+## Future Enhancements
+
+1. **Activity Sequences:**
+   - Allow creation of activity sequences/schedules
+   - Save and load different sequences
+   - Add drag-and-drop reordering of sequence items
+   - Visual timeline view of sequences
+
+2. **Persistence & Sync:**
+   - Add local storage to remember selected activities
+   - Optional cloud sync for sharing schedules
+   - Export/import functionality for sequences
+   - Multi-device synchronization
+
+3. **Accessibility Improvements:**
+   - Add screen reader support with ARIA labels
+   - High contrast mode option
+   - Support for keyboard navigation
+   - Customizable animation settings
+
+4. **Enhanced Symbol Management:**
+   - Categories for symbols (e.g., morning routine, evening routine)
+   - Custom symbol upload feature
+   - Symbol search and filtering
+   - Favorites or frequently used symbols
+
+5. **User Experience:**
+   - Haptic feedback on mobile devices
+   - Sound effects or voice prompts (optional)
+   - Dark mode theme
+   - Customizable card sizes and layouts
+
+6. **Timer Integration:**
+   - Optional timers for activities
+   - Visual countdown for current activity
+   - Customizable alerts/reminders
+   - Activity duration tracking
+
+7. **Multi-User Support:**
+   - User profiles for different family members
+   - Role-based access (parent/child views)
+   - Shared schedules between users
+   - Activity completion tracking
+
+8. **Progress Tracking:**
+   - Daily/weekly activity completion stats
+   - Reward system for completing activities
+   - Visual progress indicators
+   - Exportable activity reports
+
+These enhancements would expand the app's functionality while maintaining its core simplicity and ease of use. Implementation priority should be based on user feedback and specific needs.

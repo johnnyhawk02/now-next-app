@@ -1,15 +1,31 @@
 import React from 'react';
+import { getSymbolByFilename } from '../data/symbols';
 import styles from './SymbolButton.module.css';
 
 interface SymbolButtonProps {
-  symbolName: string;
+  symbolName: string; // This is actually the filename
   onClick: (e: React.MouseEvent) => void;
-  isNow?: boolean; // New prop to indicate if this is the 'now' symbol
+  isNow?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
-const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick, isNow = false }) => {
-  // Determine CSS classes based on isNow prop
+const SymbolButton: React.FC<SymbolButtonProps> = ({ 
+  symbolName, 
+  onClick, 
+  isNow = false,
+  isFavorite = false,
+  onToggleFavorite
+}) => {
   const buttonClasses = `${styles.symbolButton} ${isNow ? styles.nowSymbol : ''}`;
+  const symbol = getSymbolByFilename(symbolName);
+  
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite();
+    }
+  };
 
   return (
     <button 
@@ -19,9 +35,24 @@ const SymbolButton: React.FC<SymbolButtonProps> = ({ symbolName, onClick, isNow 
       <img 
         className={styles.symbolImage}
         src={`/symbols/${symbolName}`} 
-        alt={symbolName.split('.')[0]} 
+        alt={symbol?.displayName || symbolName.split('.')[0]}
+        title={symbol?.displayName}
       />
       {isNow && <div className={styles.nowIndicator}>NOW</div>}
+      
+      {onToggleFavorite && (
+        <button 
+          className={`${styles.favoriteButton} ${isFavorite ? styles.isFavorite : ''}`}
+          onClick={handleFavoriteClick}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          {isFavorite ? '★' : '☆'}
+        </button>
+      )}
+      
+      <span className={styles.symbolName}>
+        {symbol?.displayName || symbolName.split('.')[0].replace(/([A-Z])/g, ' $1').trim()}
+      </span>
     </button>
   );
 };
