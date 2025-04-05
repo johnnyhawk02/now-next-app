@@ -54,6 +54,35 @@
   transform: scale(0.96);
 }
 
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+  justify-content: center;
+  gap: 0.75rem; /* Space between buttons */
+  margin-top: 1.5rem; /* Space above the button group */
+  width: 100%;
+  max-width: 500px; /* Limit width */
+}
+
+.actionButtons button {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  background-color: #4a90e2; /* Consistent button color */
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.actionButtons button:hover {
+  background-color: #357abd;
+}
+
+.actionButtons button:active {
+  transform: scale(0.97);
+}
+
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

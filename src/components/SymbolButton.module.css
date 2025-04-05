@@ -30,8 +30,8 @@
 }
 
 .symbolImage {
-  width: 45px;
-  height: 45px;
+  width: 68px; /* Increased from 45px */
+  height: 68px; /* Increased from 45px */
   object-fit: contain;
   margin-bottom: 0.5rem;
   /* Prevent image highlighting on iOS */
@@ -57,8 +57,8 @@
 
 @media (min-width: 768px) {
   .symbolImage {
-    width: 50px;
-    height: 50px;
+    width: 75px; /* Increased from 50px */
+    height: 75px; /* Increased from 50px */
   }
 }
 
@@ -69,8 +69,8 @@
   }
 
   .symbolImage {
-    width: 50px;
-    height: 50px;
+    width: 75px; /* Increased from 50px */
+    height: 75px; /* Increased from 50px */
   }
 }
 

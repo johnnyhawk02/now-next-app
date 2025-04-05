@@ -21,7 +21,7 @@
 
 .card img {
   width: 100%;
-  max-width: 100px;
+  max-width: 150px; /* Increased from 100px */
   height: auto;
   object-fit: contain;
   /* Add a slight drop shadow to make images stand out */
@@ -55,7 +55,7 @@
   }
   
   .card img {
-    max-width: 120px;
+    max-width: 180px; /* Increased from 120px */
   }
 }
 
