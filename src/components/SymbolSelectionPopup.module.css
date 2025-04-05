@@ -4,13 +4,12 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000; /* Keep this below the edit toggle z-index */
-  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 
-           max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  padding: 0;
   pointer-events: auto;
   animation: fadeIn 0.3s ease;
 }
@@ -29,18 +28,18 @@
 
 .popupContent {
   background: white;
-  border-radius: 1rem;
-  padding: 1rem;
   width: 100%;
-  max-width: 90%;
-  max-height: 85vh; /* Ensure it fits on screen */
-  overflow-y: auto; /* Enable scrolling if needed */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  pointer-events: auto;
-  z-index: 1005;
-  animation: scaleIn 0.3s ease-out;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 
+           max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.2s ease-out;
 }
 
 .popupTitle {
@@ -123,12 +122,18 @@
 
 @media (max-width: 480px) {
   .symbolGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
+    padding: 0 0.25rem;
+    flex-grow: 1;
   }
   
   .popupContent {
-    max-width: 95%;
-    padding: 0.75rem;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) 
+             max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    border-radius: 0;
   }
 }
