@@ -1,4 +1,4 @@
-/* Custom animations */
+/* Custom animations for use across components */
 @keyframes fadeIn {
   0% { opacity: 0; }
   100% { opacity: 1; }
@@ -9,38 +9,21 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Global styles that apply across the entire application */
+/* Global styles and resets */
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
-  overflow: hidden; /* Prevent bouncing/scrolling on iOS */
-  position: fixed; /* Fix position to prevent iOS Safari interface showing/hiding */
+  overflow: hidden;
+  position: fixed;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   background: linear-gradient(to bottom right, #f0f4ff, #d9e8ff);
   color: #333;
-  /* Safe area inset padding for iPhone X and newer */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-/* Special styles for standalone mode (when added to home screen) */
-body.standalone-mode {
-  /* Special styling when running as a PWA from home screen */
-  height: 100vh;
-  height: calc(var(--vh, 1vh) * 100);
-  width: 100vw;
-  position: fixed;
-  overflow: hidden;
-}
-
-/* Fix for iPhone X and newer with notches and home indicators */
-body.standalone-mode #root {
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-top: env(safe-area-inset-top);
 }
 
 #root {
@@ -51,23 +34,39 @@ body.standalone-mode #root {
 
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
-  touch-action: manipulation; /* Disable double-tap to zoom on iOS */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
+/* Typography resets */
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
 }
 
+/* Interactive element defaults */
 button {
   cursor: pointer;
   font-family: inherit;
-  -webkit-touch-callout: none; /* Prevent callout to copy image, etc on iOS Safari */
-  user-select: none; /* Disable text selection */
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 img {
   max-width: 100%;
   height: auto;
-  -webkit-user-drag: none; /* Prevent image dragging on iOS */
+  -webkit-user-drag: none;
+}
+
+/* PWA standalone mode styles */
+body.standalone-mode {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  width: 100vw;
+  position: fixed;
+  overflow: hidden;
+}
+
+body.standalone-mode #root {
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: env(safe-area-inset-top);
 }
