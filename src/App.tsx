@@ -5,14 +5,22 @@ import styles from './App.module.css';
 
 const AVAILABLE_SYMBOLS = [
   'bath.png',
+  'bedtime song bunk beds.png',
+  'bedtime song.png',
+  'brush hair.png',
   'brush teeth girl.png',
   'bunk beds.png',
   'dream machine.png',
-  'pyjamas.png',
-  'brush hair.png',
-  'get dressed.png',
+  'easter egg.png',
+  'finished.png',
   'get dressed for school.png',
-  'toilet.png',
+  'get dressed.png',
+  'ice lolly.png',
+  'ipad.png',
+  'pyjamas.png',
+  'sleep in bunk beds.png',
+  'sleep.png',
+  'toilet.png'
 ];
 
 const App = () => {

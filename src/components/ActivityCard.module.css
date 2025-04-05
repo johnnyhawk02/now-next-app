@@ -97,8 +97,8 @@
     transform: scale(1); /* Start at normal scale */
   }
   to {
-    /* Increase shadow spread, blur, and opacity, and add slight scale */
-    box-shadow: 0 10px 25px 5px rgba(76, 175, 80, 0.3); /* Green shadow */
-    transform: scale(1.02); /* Slightly scale up */
+    /* Increase shadow spread, blur, and opacity, and add more scale */
+    box-shadow: 0 12px 30px 8px rgba(76, 175, 80, 0.4); /* More intense shadow */
+    transform: scale(1.1); /* Larger scale */
   }
 }
