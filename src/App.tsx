@@ -12,7 +12,6 @@ import {
 } from './data/symbols';
 import {
   getAllSequences,
-  getSequenceById,
   Sequence,
   SEQUENCES
 } from './data/sequences';

@@ -171,6 +171,12 @@ export const SYMBOLS: Symbol[] = [
     categories: [CATEGORIES.ACTIVITIES],
   },
   {
+    id: 'mcdonalds',
+    filename: 'McDonalds.png',
+    displayName: 'McDonald\'s',
+    categories: [CATEGORIES.ACTIVITIES, CATEGORIES.MEALTIME],
+  },
+  {
     id: 'finished',
     filename: 'finished.png',
     displayName: 'Finished',

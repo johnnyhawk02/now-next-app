@@ -41,15 +41,6 @@ const SequenceBar: React.FC<SequenceBarProps> = ({
   }, [isEditMode]);
   
   // Get filename for current symbol in the sequence
-  const getCurrentSymbolFilename = () => {
-    if (!selectedSequence || currentStepIndex < 0 || currentStepIndex >= totalSteps) {
-      return null;
-    }
-    
-    const currentSymbolId = selectedSequence.symbolIds[currentStepIndex];
-    const symbol = getSymbolById(currentSymbolId);
-    return symbol?.filename || null;
-  };
   
   const toggleExpanded = () => {
     setExpanded(!expanded);

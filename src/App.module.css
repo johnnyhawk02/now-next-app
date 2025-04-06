@@ -14,7 +14,8 @@
   align-items: center;
   width: 100%;
   padding: 1rem;
-  padding-top: calc(56px + 1rem); /* AppBar height + padding */
+  /* Fix padding top to account for app bar + safe area inset */
+  padding-top: calc(56px + env(safe-area-inset-top) + 1rem); 
   padding-bottom: calc(150px + 1rem); /* SequenceBar height + padding */
   flex-grow: 1;
 }
