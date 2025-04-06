@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './AppBar.module.css';
 
 interface AppBarProps {
@@ -7,6 +7,7 @@ interface AppBarProps {
   isEditMode: boolean;
   autoAnnounce?: boolean;
   onToggleAutoAnnounce?: () => void;
+  onVoiceChange: (voiceURI: string) => void;
 }
 
 const AppBar: React.FC<AppBarProps> = ({ 
@@ -14,8 +15,37 @@ const AppBar: React.FC<AppBarProps> = ({
   onEditModeToggle, 
   isEditMode,
   autoAnnounce = true,
-  onToggleAutoAnnounce
+  onToggleAutoAnnounce,
+  onVoiceChange
 }) => {
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+        setVoices(availableVoices);
+      }
+    };
+
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // Retry loading voices if they are not immediately available
+    const retryInterval = setInterval(() => {
+      if (voices.length === 0) {
+        loadVoices();
+      } else {
+        clearInterval(retryInterval);
+      }
+    }, 500);
+
+    loadVoices();
+
+    return () => clearInterval(retryInterval);
+  }, [voices]);
+
   return (
     <header className={styles.appBar}>
       <div className={styles.appBarContent}>
@@ -34,7 +64,7 @@ const AppBar: React.FC<AppBarProps> = ({
               <span className={`${styles.toggleSlider} ${styles.voiceSlider}`}></span>
             </label>
           )}
-          
+
           <label className={styles.editModeToggleLabel}>
             <span className={styles.editModeText}>Edit</span>
             <input
@@ -45,6 +75,18 @@ const AppBar: React.FC<AppBarProps> = ({
             />
             <span className={styles.toggleSlider}></span>
           </label>
+
+          <select
+            className={styles.voiceSelector}
+            onChange={(e) => onVoiceChange(e.target.value)}
+            aria-label="Select TTS Voice"
+          >
+            {voices.map((voice) => (
+              <option key={voice.voiceURI} value={voice.voiceURI}>
+                {voice.name} ({voice.lang})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </header>
