@@ -46,6 +46,37 @@
   gap: 1rem;
 }
 
+/* Voice toggle styles */
+.voiceToggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.voiceText {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  user-select: none;
+}
+
+.voiceToggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+/* Voice toggle slider specific styles */
+.voiceSlider {
+  background-color: rgba(228, 228, 231, 0.8);
+}
+
+.voiceToggle:checked + .voiceSlider {
+  background-color: rgba(56, 189, 248, 0.8); /* Light blue for voice toggle */
+}
+
 /* Edit mode toggle styles */
 .editModeToggleLabel {
   display: flex;
@@ -105,7 +136,8 @@
     font-size: 1.2rem;
   }
   
-  .editModeText {
+  .editModeText,
+  .voiceText {
     display: none;
   }
 }
@@ -120,7 +152,8 @@
     color: #e2e8f0;
   }
   
-  .editModeText {
+  .editModeText,
+  .voiceText {
     color: #94a3b8;
   }
 }

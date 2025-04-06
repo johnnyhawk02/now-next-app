@@ -15,6 +15,7 @@ import {
   Sequence,
   SEQUENCES
 } from './data/sequences';
+import { speakWithSiri } from './utils/speech';
 import styles from './App.module.css';
 
 const App = () => {
@@ -31,10 +32,26 @@ const App = () => {
   const [userCreatedSequences, setUserCreatedSequences] = useState<boolean[]>([]);
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [autoAnnounce, setAutoAnnounce] = useState(true);
   
   // Sequence editor state
   const [isSequenceEditorOpen, setIsSequenceEditorOpen] = useState(false);
   const [sequenceToEdit, setSequenceToEdit] = useState<Sequence | undefined>(undefined);
+
+  // Speak activity name automatically when it changes
+  useEffect(() => {
+    if (autoAnnounce && nowSymbol && !isEditMode && !isPopupOpen && !isSequenceEditorOpen) {
+      const symbol = getSymbolById(nowSymbol.replace('.png', ''));
+      const textToSpeak = symbol?.displayName || nowSymbol.split('.')[0].replace(/([A-Z])/g, ' $1').trim();
+      
+      // Add a small delay before speaking to ensure UI has updated
+      const timer = setTimeout(() => {
+        speakWithSiri(textToSpeak, { cancelExisting: true });
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [nowSymbol, isEditMode, isPopupOpen, isSequenceEditorOpen, autoAnnounce]);
 
   const handleSelectSymbol = (e: React.MouseEvent, symbolName: string) => {
     e.stopPropagation();
@@ -63,8 +80,12 @@ const App = () => {
   const handleEditModeToggle = () => {
     setIsEditMode(!isEditMode);
   };
+  
+  // Toggle auto-announce feature
+  const toggleAutoAnnounce = () => {
+    setAutoAnnounce(prev => !prev);
+  };
 
-  // Sequence handlers
   const handleSelectSequence = (sequenceId: string) => {
     if (sequenceId === '') {
       setSelectedSequenceId(null);
@@ -302,6 +323,8 @@ const App = () => {
         title="Activity Planner" 
         onEditModeToggle={handleEditModeToggle}
         isEditMode={isEditMode}
+        autoAnnounce={autoAnnounce}
+        onToggleAutoAnnounce={toggleAutoAnnounce}
       />
       
       <div className={styles.content}>

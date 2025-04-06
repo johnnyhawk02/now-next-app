@@ -1,5 +1,6 @@
 import React from 'react';
 import { getSymbolByFilename } from '../data/symbols';
+import { speakWithSiri } from '../utils/speech';
 import styles from './ActivityCard.module.css';
 
 interface ActivityCardProps {
@@ -21,18 +22,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     if (isEditMode && onClick) {
       onClick();
     } else if (symbolFilename) {
-      // In non-edit mode, speak the symbol name using text-to-speech
+      // In non-edit mode, speak the symbol name using Siri voice on iOS
       const symbol = getSymbolByFilename(symbolFilename);
       const textToSpeak = symbol?.displayName || symbolFilename.split('.')[0].replace(/([A-Z])/g, ' $1').trim();
       
-      // Use the Web Speech API for text-to-speech
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        // Use a slightly slower rate and higher pitch for clearer speech for children
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        window.speechSynthesis.speak(utterance);
-      }
+      // Use our Siri voice utility
+      speakWithSiri(textToSpeak, {
+        cancelExisting: true, // Cancel any ongoing speech
+        rate: 0.9, // Slightly slower for clarity
+        pitch: 1.1, // Slightly higher pitch
+      });
     }
   };
 
