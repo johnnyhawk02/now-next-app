@@ -10,17 +10,12 @@
   background-color: rgba(255, 255, 255, 0.9);
   /* Force the status bar area to be part of the app bar */
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
 }
 
-/* Add a dedicated status bar area that respects safe area insets */
+/* Override the pseudo-element approach with direct padding */
 .appBar::before {
-  content: '';
-  display: block;
-  width: 100%;
-  height: env(safe-area-inset-top);
-  background-color: inherit;
+  display: none;
 }
 
 .appBarContent {
