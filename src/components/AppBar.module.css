@@ -1,0 +1,115 @@
+.appBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 9900;
+  padding: max(0.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 
+           0.5rem max(1rem, env(safe-area-inset-left));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.appBarContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Edit mode toggle styles */
+.editModeToggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.editModeText {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  user-select: none;
+}
+
+.editModeToggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.toggleSlider {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  background-color: rgba(228, 228, 231, 0.8);
+  transition: .3s ease;
+  border-radius: 20px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .3s ease;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.editModeToggle:checked + .toggleSlider {
+  background-color: rgba(74, 222, 128, 0.8);
+}
+
+.editModeToggle:checked + .toggleSlider:before {
+  transform: translateX(20px);
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.2rem;
+  }
+  
+  .editModeText {
+    display: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .appBar {
+    background-color: rgba(30, 41, 59, 0.9);
+  }
+  
+  .title {
+    color: #e2e8f0;
+  }
+  
+  .editModeText {
+    color: #94a3b8;
+  }
+}
