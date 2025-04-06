@@ -3,6 +3,7 @@ import ActivityCard from './components/ActivityCard.tsx';
 import SymbolSelectionPopup from './components/SymbolSelectionPopup.tsx';
 import AppBar from './components/AppBar.tsx';
 import SequenceBar from './components/SequenceBar.tsx';
+import SequenceEditor from './components/SequenceEditor.tsx';
 import { 
   getAllCategories, 
   getSymbolsByCategory, 
@@ -12,7 +13,8 @@ import {
 import {
   getAllSequences,
   getSequenceById,
-  Sequence
+  Sequence,
+  SEQUENCES
 } from './data/sequences';
 import styles from './App.module.css';
 
@@ -25,9 +27,15 @@ const App = () => {
   const [activeCategory, setActiveCategory] = useState<string | 'Favorites'>('Favorites');
   
   // Sequence state
+  const [sequences, setSequences] = useState<Sequence[]>([]);
+  const [userSequences, setUserSequences] = useState<Sequence[]>([]);
+  const [userCreatedSequences, setUserCreatedSequences] = useState<boolean[]>([]);
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [sequences, setSequences] = useState<Sequence[]>([]);
+  
+  // Sequence editor state
+  const [isSequenceEditorOpen, setIsSequenceEditorOpen] = useState(false);
+  const [sequenceToEdit, setSequenceToEdit] = useState<Sequence | undefined>(undefined);
 
   const handleSelectSymbol = (e: React.MouseEvent, symbolName: string) => {
     e.stopPropagation();
@@ -68,7 +76,7 @@ const App = () => {
     setCurrentStepIndex(0);
     
     // Update Now and Next with the first two steps in the sequence
-    const sequence = getSequenceById(sequenceId);
+    const sequence = [...SEQUENCES, ...userSequences].find(seq => seq.id === sequenceId);
     if (sequence && sequence.symbolIds.length > 0) {
       // Set "Now" to first step
       const nowSymbolId = sequence.symbolIds[0];
@@ -101,7 +109,8 @@ const App = () => {
   const handleNextStep = () => {
     if (!selectedSequenceId) return;
     
-    const sequence = getSequenceById(selectedSequenceId);
+    const allSequences = [...SEQUENCES, ...userSequences];
+    const sequence = allSequences.find(seq => seq.id === selectedSequenceId);
     if (!sequence || currentStepIndex >= sequence.symbolIds.length - 1) return;
     
     setCurrentStepIndex(prevIndex => {
@@ -115,7 +124,8 @@ const App = () => {
   const updateSymbolsForStep = (stepIndex: number) => {
     if (!selectedSequenceId) return;
     
-    const sequence = getSequenceById(selectedSequenceId);
+    const allSequences = [...SEQUENCES, ...userSequences];
+    const sequence = allSequences.find(seq => seq.id === selectedSequenceId);
     if (!sequence) return;
     
     // Set "Now" to current step
@@ -139,6 +149,46 @@ const App = () => {
       setNextSymbol(null);
     }
   };
+  
+  // Custom sequence management
+  const handleCreateSequence = () => {
+    setSequenceToEdit(undefined);  // No initial sequence for creation
+    setIsSequenceEditorOpen(true);
+  };
+  
+  const handleEditSequence = (sequence: Sequence) => {
+    setSequenceToEdit(sequence);
+    setIsSequenceEditorOpen(true);
+  };
+  
+  const handleDeleteSequence = (sequenceId: string) => {
+    const updatedUserSequences = userSequences.filter(sequence => sequence.id !== sequenceId);
+    setUserSequences(updatedUserSequences);
+    
+    // If the deleted sequence is currently selected, clear the selection
+    if (selectedSequenceId === sequenceId) {
+      setSelectedSequenceId(null);
+    }
+  };
+  
+  const handleSaveSequence = (sequence: Sequence) => {
+    // Check if we're updating an existing sequence
+    const existingIndex = userSequences.findIndex(seq => seq.id === sequence.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing sequence
+      const updatedSequences = [...userSequences];
+      updatedSequences[existingIndex] = sequence;
+      setUserSequences(updatedSequences);
+    } else {
+      // Add new sequence
+      setUserSequences(prev => [...prev, sequence]);
+    }
+    
+    // Select the saved sequence
+    setSelectedSequenceId(sequence.id);
+    setCurrentStepIndex(0);
+  };
 
   // Get the symbols to display based on active category
   const getDisplaySymbols = (): string[] => {
@@ -148,10 +198,30 @@ const App = () => {
     return getSymbolsByCategory(activeCategory).map(symbol => symbol.filename);
   };
 
-  // Load initial data
+  // Load initial data and user sequences
   useEffect(() => {
-    // Load all sequences
-    setSequences(getAllSequences());
+    // Load default sequences
+    const defaultSequences = getAllSequences();
+    
+    // Load user sequences from localStorage
+    let loadedUserSequences: Sequence[] = [];
+    const savedUserSequences = localStorage.getItem('userSequences');
+    if (savedUserSequences) {
+      try {
+        loadedUserSequences = JSON.parse(savedUserSequences);
+      } catch (e) {
+        console.error('Failed to load user sequences', e);
+      }
+    }
+    
+    // Combine sequences
+    const allSequences = [...defaultSequences, ...loadedUserSequences];
+    setSequences(allSequences);
+    setUserSequences(loadedUserSequences);
+    
+    // Set which sequences are user-created
+    const userCreatedFlags = allSequences.map((_, idx) => idx >= defaultSequences.length);
+    setUserCreatedSequences(userCreatedFlags);
     
     // Initialize with default symbols if needed
     const allFilenames = getAllFilenames();
@@ -174,7 +244,9 @@ const App = () => {
     if (savedSequenceId) {
       try {
         const sequenceId = JSON.parse(savedSequenceId);
-        if (getSequenceById(sequenceId)) {
+        const sequenceExists = allSequences.some(seq => seq.id === sequenceId);
+        
+        if (sequenceExists) {
           setSelectedSequenceId(sequenceId);
           
           // Also load the last step index if available
@@ -182,7 +254,6 @@ const App = () => {
           if (savedStepIndex) {
             const stepIndex = JSON.parse(savedStepIndex);
             setCurrentStepIndex(stepIndex);
-            // We'll update the symbols in the next effect when sequence is set
           }
         }
       } catch (e) {
@@ -195,6 +266,18 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('favoriteSymbols', JSON.stringify(favoriteSymbols));
   }, [favoriteSymbols]);
+  
+  // Save user sequences to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('userSequences', JSON.stringify(userSequences));
+    
+    // Update the combined sequences and user created flags
+    const allSequences = [...SEQUENCES, ...userSequences];
+    setSequences(allSequences);
+    
+    const userCreatedFlags = allSequences.map((_, idx) => idx >= SEQUENCES.length);
+    setUserCreatedSequences(userCreatedFlags);
+  }, [userSequences]);
   
   // Save selected sequence and step index to localStorage
   useEffect(() => {
@@ -247,6 +330,19 @@ const App = () => {
         onSelectSequence={handleSelectSequence}
         onPrevStep={handlePrevStep}
         onNextStep={handleNextStep}
+        onCreateSequence={handleCreateSequence}
+        onEditSequence={handleEditSequence}
+        onDeleteSequence={handleDeleteSequence}
+        userCreatedSequences={userCreatedSequences}
+        isEditMode={isEditMode}
+      />
+      
+      <SequenceEditor
+        isOpen={isSequenceEditorOpen}
+        onClose={() => setIsSequenceEditorOpen(false)}
+        onSaveSequence={handleSaveSequence}
+        initialSequence={sequenceToEdit}
+        allSequences={sequences}
       />
 
       <SymbolSelectionPopup
