@@ -1,5 +1,8 @@
 // speech.ts - Utility for speech synthesis with Siri voice support for iOS
 
+// Importing the SpeechRecognition type from the DOM library to resolve the TypeScript error
+/// <reference lib="dom" />
+
 interface SpeechOptions {
   rate?: number;
   pitch?: number;
@@ -683,3 +686,13 @@ export const applyStoredSpeechSettings = (options: SpeechOptions = {}): SpeechOp
     lang: options.lang || storedSettings.language
   };
 };
+
+// Updated the Window interface to use 'any' for SpeechRecognition and its vendor-prefixed variants to resolve the circular reference error
+declare global {
+  interface Window {
+    SpeechRecognition?: any;
+    webkitSpeechRecognition?: any;
+    mozSpeechRecognition?: any;
+    msSpeechRecognition?: any;
+  }
+}

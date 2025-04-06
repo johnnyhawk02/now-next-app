@@ -38,23 +38,6 @@ const App = () => {
   const [isSequenceEditorOpen, setIsSequenceEditorOpen] = useState(false);
   const [sequenceToEdit, setSequenceToEdit] = useState<Sequence | undefined>(undefined);
 
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string | null>(null);
-
-  const handleVoiceChange = (voiceURI: string) => {
-    setSelectedVoiceURI(voiceURI);
-  };
-
-  const speak = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (selectedVoiceURI) {
-      const voice = window.speechSynthesis.getVoices().find(v => v.voiceURI === selectedVoiceURI);
-      if (voice) {
-        utterance.voice = voice;
-      }
-    }
-    window.speechSynthesis.speak(utterance);
-  };
-
   // Speak activity name automatically when it changes
   useEffect(() => {
     if (autoAnnounce && nowSymbol && !isEditMode && !isPopupOpen && !isSequenceEditorOpen) {
@@ -342,7 +325,7 @@ const App = () => {
         isEditMode={isEditMode}
         autoAnnounce={autoAnnounce}
         onToggleAutoAnnounce={toggleAutoAnnounce}
-        onVoiceChange={handleVoiceChange}
+        onVoiceChange={() => {}}
       />
       
       <div className={styles.content}>
