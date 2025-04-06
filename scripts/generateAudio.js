@@ -453,3 +453,65 @@ async function generateAllAudio() {
 
 // --- Execute the Main Function ---
 generateAllAudio();
+
+// Updated the script to generate audio for the app's symbols located in 'public/symbols/'
+async function generateAppAudio() {
+  console.log("Starting audio generation for app symbols...");
+
+  try {
+    // Define paths
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const symbolsDir = path.join(__dirname, '..', 'public', 'symbols');
+    const audioDir = path.join(__dirname, '..', 'public', 'audio');
+
+    // Ensure output directory exists
+    await ensureDirectoryExists(audioDir);
+
+    // Read symbol filenames
+    const symbolFiles = await fs.readdir(symbolsDir);
+    const processedSymbols = new Set();
+
+    for (const file of symbolFiles) {
+      if (!/\.(png|jpg|jpeg|gif)$/i.test(file)) {
+        continue; // Skip non-image files
+      }
+
+      const baseName = file
+        .toLowerCase()
+        .replace(/\.[^/.]+$/, '') // Remove file extension
+        .replace(/_/g, ' ') // Replace underscores with spaces
+        .trim();
+
+      if (processedSymbols.has(baseName)) {
+        continue; // Skip already processed symbols
+      }
+
+      processedSymbols.add(baseName);
+
+      const outputPath = path.join(audioDir, `${baseName}.mp3`);
+
+      if (await directoryExists(outputPath)) {
+        console.log(`Skipping ${baseName} - audio file already exists`);
+        continue;
+      }
+
+      console.log(`Generating audio for symbol: ${baseName}`);
+      const success = await generateAudioFile(baseName, outputPath, false);
+
+      if (success) {
+        console.log(`Successfully generated audio for: ${baseName}`);
+        await new Promise(resolve => setTimeout(resolve, API_CALL_DELAY_MS));
+      } else {
+        console.warn(`Failed to generate audio for: ${baseName}`);
+      }
+    }
+
+    console.log("Audio generation for app symbols completed.");
+  } catch (error) {
+    console.error("Error during app audio generation:", error);
+  }
+}
+
+// Execute the updated function
+generateAppAudio();

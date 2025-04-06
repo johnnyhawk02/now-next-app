@@ -4,14 +4,16 @@ This document provides an overview of the Now-Next application structure, explai
 
 ## Main Application Files
 
-- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`) and renders the primary UI.
-- **App.module.css**: Component-specific styles for the App component, including styles for the Edit Mode toggle switch and layout.
+- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`, `autoAnnounce`) and renders the primary UI.
+- **App.module.css**: Component-specific styles for the App component layout.
 - **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
 - **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
 - **index.html**: Main HTML file with mobile meta tags, PWA configurations, and the root div (`#root`).
 - **manifest.json**: PWA manifest file for home screen installation on mobile devices.
 - **data/symbols.ts**: Central data file containing all symbol definitions, categories, and utility functions for symbol management.
 - **data/sequences.ts**: Data file containing the Sequence interface definition, predefined sequences, and helper functions for sequence management.
+- **components/AppBar.tsx**: Component for the top application bar, including title, edit mode toggle, and auto-announce toggle.
+- **components/AppBar.module.css**: Styles specific to the `AppBar` component.
 
 ## Component Structure & Responsibilities
 
@@ -27,20 +29,36 @@ This document provides an overview of the Now-Next application structure, explai
   - `selectedSequenceId: string | null`: ID of the currently selected sequence.
   - `currentStepIndex: number`: Current position in the selected sequence.
   - `userCreatedSequences: boolean[]`: Tracks which sequences are user-created vs. default.
+  - `autoAnnounce: boolean`: Tracks whether the "Now" activity name should be automatically announced via speech synthesis.
 - **Renders:**
+  - `AppBar`: The top application bar containing controls.
   - `ActivityCard` (x2): For "Now" and "Next".
   - `SymbolSelectionPopup`: The popup for choosing symbols.
   - `SequenceBar`: For managing and navigating activity sequences.
   - `SequenceEditor`: For creating and editing sequences.
-  - Edit Mode toggle switch: A toggle switch in the top-right corner to enable or disable edit mode.
 - **Responsibilities:**
   - Manages the main state of the application.
   - Handles user interactions for selecting symbols.
-  - Toggles between edit and view modes using the Edit Mode toggle switch.
+  - Passes state and callbacks to the `AppBar` for toggling edit mode and auto-announce.
   - Initializes default symbols if none are selected.
   - Persists favorite symbols to localStorage.
   - Filters and provides symbols based on selected category.
   - Manages sequences, including creation, editing, and navigation through sequence steps.
+
+### AppBar Component
+- **Files:** `components/AppBar.tsx`, `components/AppBar.module.css`
+- **Purpose:** Displays the top application bar with the title and primary controls.
+- **Props (Inputs):**
+  - `title: string`: The title to display in the app bar.
+  - `onEditModeToggle: () => void`: Callback to toggle edit mode.
+  - `isEditMode: boolean`: Current state of edit mode.
+  - `autoAnnounce: boolean`: Current state of auto-announce feature.
+  - `onToggleAutoAnnounce: () => void`: Callback to toggle auto-announce.
+  - `onVoiceChange: () => void`: Placeholder for future voice selection functionality.
+- **Responsibilities:**
+  - Displays the application title.
+  - Renders toggle switches for Edit Mode and Auto-Announce features.
+  - Calls back to `App.tsx` when toggles are changed.
 
 ### ActivityCard Component
 - **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
@@ -92,7 +110,6 @@ This document provides an overview of the Now-Next application structure, explai
   - Provides category tabs for filtering symbols.
   - Displays a grid of symbols with favorites functionality.
   - Handles closing via backdrop click or close button.
-  - Makes sure the edit toggle remains accessible with a top-right cutout.
   - Supports sequence creation mode with count indicator.
 
 ### SequenceBar Component
@@ -186,7 +203,7 @@ This document provides an overview of the Now-Next application structure, explai
    - Users can filter symbols by category using the tabs in the popup.
    - Selecting a symbol in the popup updates the corresponding state and closes the popup.
    - Users can toggle favorite status on symbols which persists to localStorage.
-   - The Edit Mode toggle controls whether cards are interactive or static.
+   - The Edit Mode and Auto-Announce toggles in the `AppBar` control application behavior.
    - Users can select sequences from the dropdown in the SequenceBar.
    - Navigation through sequence steps with prev/next buttons updates Now/Next cards.
 
@@ -206,9 +223,9 @@ This document provides an overview of the Now-Next application structure, explai
    - Sequence navigation updates the current step index which determines Now/Next symbols
 
 5. **Edit Mode Flow:**
-   - Edit mode toggle in top-right corner (z-index: 10000) toggles app interaction mode
-   - When enabled, cards become clickable to change symbols and sequence controls are accessible
-   - When disabled, cards simply display the current symbols without interaction and sequence bar may collapse
+   - Edit mode toggle in the `AppBar` toggles app interaction mode.
+   - When enabled, cards become clickable to change symbols and sequence controls are accessible.
+   - When disabled, cards simply display the current symbols without interaction and sequence bar may collapse.
 
 ## Symbol Management
 
@@ -247,7 +264,8 @@ This document provides an overview of the Now-Next application structure, explai
 - **Category Filtering:** Tab navigation for filtering symbols by category
 - **Favorites System:** Star icons to mark frequently used symbols
 - **Now Card Animation:** Subtle pulsing effect (scale: 1.02) to highlight current activity
-- **Edit Mode Toggle:** Always visible toggle in top-right corner for switching modes
+- **Edit Mode Toggle:** Always visible toggle in the `AppBar` for switching modes
+- **Auto-Announce Toggle:** Always visible toggle in the `AppBar` to enable/disable automatic speech for the "Now" activity
 - **Safe Area Support:** All UI elements respect device notches and home indicators
 - **Sequence Navigation:** Prev/next buttons and dropdown for selecting and navigating sequences
 - **Sequence Bar:** Collapsible interface that can be minimized when not in use
@@ -262,7 +280,8 @@ This document provides an overview of the Now-Next application structure, explai
 
 - **CSS Modules:**
   - Each component has its own `.module.css` file for component-scoped styling:
-    - `App.module.css`: Layout and edit mode toggle styles
+    - `App.module.css`: Layout styles for the main App component.
+    - `AppBar.module.css`: Styles for the top application bar and its controls.
     - `ActivityCard.module.css`: Card styling and animations
     - `SymbolButton.module.css`: Button and image styles
     - `SymbolSelectionPopup.module.css`: Popup and grid layout styles
@@ -277,7 +296,7 @@ This document provides an overview of the Now-Next application structure, explai
     - PWA-specific styles
     - iOS safe area handling
 - **Z-Index Management:**
-  - Edit toggle: 10000 (highest)
+  - AppBar: 10000 (highest)
   - Favorite buttons: 1030
   - Symbol buttons: 1010
   - Popup overlay: 1000
@@ -338,12 +357,14 @@ This document provides an overview of the Now-Next application structure, explai
 4. **Progressive Web App (PWA):**
    - Installable on mobile devices for a native-like experience.
 5. **Edit Mode Toggle:**
-   - Easily switch between edit and view modes using the toggle switch.
+   - Easily switch between edit and view modes using the toggle switch in the `AppBar`.
 6. **Activity Sequences:**
    - Choose from predefined sequences like Bedtime Routine and Morning Routine.
    - Create, edit, and delete custom sequences.
    - Navigate through sequence steps with prev/next controls.
    - Visual step indicators to track progress through a sequence.
+7. **Auto Announce:**
+   - Automatically speaks the name of the "Now" activity using speech synthesis when it changes (can be toggled off).
 
 ## Future Enhancements
 

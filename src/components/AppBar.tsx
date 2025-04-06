@@ -34,9 +34,9 @@ const AppBar: React.FC<AppBarProps> = ({
 
     // Retry loading voices if they are not immediately available
     const retryInterval = setInterval(() => {
-      if (voices.length === 0) {
-        loadVoices();
-      } else {
+      const availableVoices = window.speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+        setVoices(availableVoices);
         clearInterval(retryInterval);
       }
     }, 500);
@@ -44,7 +44,7 @@ const AppBar: React.FC<AppBarProps> = ({
     loadVoices();
 
     return () => clearInterval(retryInterval);
-  }, [voices]);
+  }, []); // Remove voices from the dependency array to avoid infinite loop
 
   return (
     <header className={styles.appBar}>

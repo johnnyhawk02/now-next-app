@@ -15,7 +15,7 @@ import {
   Sequence,
   SEQUENCES
 } from './data/sequences';
-import { speakWithSiri } from './utils/speech';
+import { playAudioForWord } from './utils/speech';
 import styles from './App.module.css';
 
 const App = () => {
@@ -38,15 +38,15 @@ const App = () => {
   const [isSequenceEditorOpen, setIsSequenceEditorOpen] = useState(false);
   const [sequenceToEdit, setSequenceToEdit] = useState<Sequence | undefined>(undefined);
 
-  // Speak activity name automatically when it changes
+  // Play audio for activity name automatically when it changes
   useEffect(() => {
     if (autoAnnounce && nowSymbol && !isEditMode && !isPopupOpen && !isSequenceEditorOpen) {
       const symbol = getSymbolById(nowSymbol.replace('.png', ''));
-      const textToSpeak = symbol?.displayName || nowSymbol.split('.')[0].replace(/([A-Z])/g, ' $1').trim();
+      const textToPlay = symbol?.displayName || nowSymbol.split('.')[0].replace(/([A-Z])/g, ' $1').trim().toLowerCase();
       
-      // Add a small delay before speaking to ensure UI has updated
+      // Add a small delay before playing audio to ensure UI has updated
       const timer = setTimeout(() => {
-        speakWithSiri(textToSpeak, { cancelExisting: true });
+        playAudioForWord(textToPlay);
       }, 300);
       
       return () => clearTimeout(timer);
