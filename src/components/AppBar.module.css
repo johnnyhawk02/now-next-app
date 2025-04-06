@@ -8,12 +8,14 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   background-color: rgba(255, 255, 255, 0.9);
-  /* Force the status bar area to be part of the app bar */
-  padding: 0;
-  padding-top: env(safe-area-inset-top);
+  /* Add a fixed minimum padding on top for the status bar, plus safe area inset */
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-bottom: 0;
 }
 
-/* Override the pseudo-element approach with direct padding */
+/* No pseudo-element needed with this approach */
 .appBar::before {
   display: none;
 }
@@ -25,8 +27,8 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  /* Add padding inside the content for consistent spacing */
-  padding: 0.75rem max(1rem, env(safe-area-inset-right)) 0.75rem max(1rem, env(safe-area-inset-left));
+  /* Keep padding on the sides, remove from top/bottom */
+  padding: 0.75rem 0;
   height: 56px;
   box-sizing: border-box;
 }
