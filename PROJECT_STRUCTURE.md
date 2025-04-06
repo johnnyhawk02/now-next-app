@@ -10,6 +10,7 @@ This document provides an overview of the Now-Next application structure, explai
 - **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
 - **index.html**: Main HTML file with mobile meta tags, PWA configurations, and the root div (`#root`).
 - **manifest.json**: PWA manifest file for home screen installation on mobile devices.
+- **data/symbols.ts**: Central data file containing all symbol definitions, categories, and utility functions for symbol management.
 
 ## Component Structure & Responsibilities
 
@@ -19,6 +20,8 @@ This document provides an overview of the Now-Next application structure, explai
   - `nextSymbol: string | null`: Filename of the symbol for the "Next" activity.
   - `isPopupOpen: 'now' | 'next' | null`: Controls which symbol selection popup is open.
   - `isEditMode: boolean`: Tracks whether the app is in edit mode or view mode.
+  - `favoriteSymbols: string[]`: Array of filenames for favorited symbols, persisted in localStorage.
+  - `activeCategory: string | 'Favorites'`: Currently selected category in the symbol selection popup.
 - **Renders:**
   - `ActivityCard` (x2): For "Now" and "Next".
   - `SymbolSelectionPopup`: The popup for choosing symbols.
@@ -28,6 +31,8 @@ This document provides an overview of the Now-Next application structure, explai
   - Handles user interactions for selecting symbols.
   - Toggles between edit and view modes using the Edit Mode toggle switch.
   - Initializes default symbols if none are selected.
+  - Persists favorite symbols to localStorage.
+  - Filters and provides symbols based on selected category.
 
 ### ActivityCard Component
 - **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
@@ -41,7 +46,8 @@ This document provides an overview of the Now-Next application structure, explai
 - **Responsibilities:**
   - Displays the symbol and title for the activity.
   - Triggers the parent callback when clicked in edit mode.
-  - Displays the symbol text in view mode.
+  - Applies focus styling for the "Now" card with subtle pulsing animation.
+  - Shows placeholder when no symbol is selected.
 
 ### SymbolButton Component
 - **Files:** `components/SymbolButton.tsx`, `components/SymbolButton.module.css`
@@ -49,49 +55,106 @@ This document provides an overview of the Now-Next application structure, explai
 - **Props (Inputs):**
   - `symbolName: string`: The filename of the symbol.
   - `onClick: (e: React.MouseEvent) => void`: Callback function triggered when the button is clicked.
+  - `isNow?: boolean`: Indicates if this button represents the current "now" activity.
+  - `isFavorite?: boolean`: Whether this symbol is marked as favorite.
+  - `onToggleFavorite?: () => void`: Callback to toggle favorite status.
 - **Responsibilities:**
-  - Displays a symbol with its name.
-  - Triggers the parent callback when clicked.
+  - Displays a symbol with its properly formatted name using data from symbols.ts.
+  - Provides favorite toggling functionality with star icon.
+  - Handles click events while preventing event propagation for favorite toggling.
+  - Applies special styling for "now" symbols.
 
 ### SymbolSelectionPopup Component
 - **Files:** `components/SymbolSelectionPopup.tsx`, `components/SymbolSelectionPopup.module.css`
-- **Purpose:** A modal popup for selecting symbols.
+- **Purpose:** A modal popup for selecting symbols, displayed in full screen.
 - **Props (Inputs):**
   - `isOpen: boolean`: Controls if the popup is visible.
-  - `popupType: 'now' | 'next' | null`: Determines the title and behavior of the popup.
+  - `popupType: 'now' | 'next' | 'sequence' | null`: Determines the title and behavior of the popup.
   - `onClose: () => void`: Callback function to close the popup.
   - `onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void`: Callback function triggered when a `SymbolButton` inside is clicked.
   - `availableSymbols: string[]`: List of symbol filenames to display.
+  - `categories?: string[]`: Available categories for filtering symbols.
+  - `activeCategory?: string | 'Favorites'`: Currently selected category.
+  - `setActiveCategory?: (category: string | 'Favorites') => void`: Callback to change the category.
+  - `favoriteSymbols?: string[]`: Array of favorite symbol filenames.
+  - `toggleFavorite?: (symbolName: string) => void`: Callback to toggle a symbol's favorite status.
 - **Responsibilities:**
-  - Displays a grid of symbols for selection.
-  - Triggers the parent callback when a symbol is selected.
+  - Presents a full-screen modal for symbol selection.
+  - Provides category tabs for filtering symbols.
+  - Displays a grid of symbols with favorites functionality.
+  - Handles closing via backdrop click or close button.
+  - Makes sure the edit toggle remains accessible with a top-right cutout.
+
+## Data Management
+
+### Symbols Data Structure
+- **File:** `data/symbols.ts`
+- **Key Components:**
+  - `Symbol` interface: Defines the structure for symbol data.
+  - `CATEGORIES` object: Contains all available symbol categories.
+  - `SYMBOLS` array: Contains all symbol definitions with metadata.
+  - Helper functions: Utilities for retrieving and filtering symbols.
+- **Symbol Structure:**
+  ```typescript
+  interface Symbol {
+    id: string;           // Unique identifier
+    filename: string;     // Filename in /public/symbols/ directory
+    displayName: string;  // Human-friendly name for display
+    categories: string[]; // Categories this symbol belongs to (can be multiple)
+  }
+  ```
+- **Categories:** Morning Routine, Mealtime, Bedtime, Activities
+- **Multi-Category Support:** Symbols can belong to multiple categories (e.g., "toilet" appears in all categories)
 
 ## State Flow
 
 1. **Initialization:**
-   - `App.tsx` initializes `nowSymbol` and `nextSymbol` with default values from `AVAILABLE_SYMBOLS` if they are not already set.
+   - `App.tsx` initializes `nowSymbol` and `nextSymbol` with default values if they are not already set.
+   - Favorite symbols are loaded from localStorage if available.
 
 2. **User Interaction:**
-   - Clicking on the "Now" or "Next" card opens the `SymbolSelectionPopup` in edit mode.
-   - Selecting a symbol in the popup updates the corresponding state (`nowSymbol` or `nextSymbol`).
+   - Clicking on the "Now" or "Next" card opens the `SymbolSelectionPopup` when in edit mode.
+   - Users can filter symbols by category using the tabs in the popup.
+   - Selecting a symbol in the popup updates the corresponding state and closes the popup.
+   - Users can toggle favorite status on symbols which persists to localStorage.
+   - The Edit Mode toggle controls whether cards are interactive or static.
 
-3. **Reactivity:**
-   - Changes to `nowSymbol` or `nextSymbol` automatically update the corresponding `ActivityCard`.
+3. **Data Flow:**
+   - Symbol data flows from `symbols.ts` → `App.tsx` → `SymbolSelectionPopup` → `SymbolButton`
+   - User interactions flow in reverse: `SymbolButton` → `SymbolSelectionPopup` → `App.tsx`
+   - Favorites are stored in `App.tsx` state and persisted to localStorage
+   - Category filtering happens at the App level with `getDisplaySymbols()` function
 
-4. **Edit Mode Toggle:**
-   - The Edit Mode toggle switch enables or disables edit mode.
-   - In edit mode, cards are clickable and open the symbol selection popup.
-   - In view mode, cards display the symbol text instead of being clickable.
+4. **Edit Mode Flow:**
+   - Edit mode toggle in top-right corner (z-index: 10000) toggles app interaction mode
+   - When enabled, cards become clickable to change symbols
+   - When disabled, cards simply display the current symbols without interaction
 
 ## Symbol Management
 
-- **Directory:** All symbols are stored in `public/symbols/`.
-- **Usage:**
-  - Symbols are dynamically loaded into the app via the `AVAILABLE_SYMBOLS` array in `App.tsx`.
-  - Each symbol is represented by its filename (e.g., `bath.png`, `pyjamas.png`).
+- **Data Source:** Symbols are defined in `src/data/symbols.ts`
+- **Storage:** Symbol images are stored in `public/symbols/`
+- **Categories:** Symbols are organized into categories (Morning Routine, Mealtime, Bedtime, Activities)
+- **Favorites:** Users can mark symbols as favorites which are stored in localStorage
+- **Multi-Category:** Symbols can belong to multiple categories, appearing in each relevant filter
 - **Adding New Symbols:**
-  - Place the new symbol image in the `public/symbols/` directory.
-  - Update the `AVAILABLE_SYMBOLS` array in `App.tsx` to include the new symbol.
+  1. Add the image file to `public/symbols/` directory
+  2. Add a new entry to the `SYMBOLS` array in `src/data/symbols.ts`
+  3. Assign it to one or more categories
+
+## UI/UX Features
+
+- **Full Screen Popup:** Symbol selection appears as a full-screen modal
+- **Category Filtering:** Tab navigation for filtering symbols by category
+- **Favorites System:** Star icons to mark frequently used symbols
+- **Now Card Animation:** Subtle pulsing effect (scale: 1.02) to highlight current activity
+- **Edit Mode Toggle:** Always visible toggle in top-right corner for switching modes
+- **Safe Area Support:** All UI elements respect device notches and home indicators
+- **Mobile Optimization:**
+  - Touch-friendly tap targets (minimum 44px)
+  - iOS-specific fixes for tap highlights and scrolling
+  - Standalone mode for home screen installation
+  - Proper handling of safe areas on notched devices
 
 ## Styling Architecture
 
@@ -109,11 +172,29 @@ This document provides an overview of the Now-Next application structure, explai
     - Shared animations (fadeIn, scaleIn)
     - PWA-specific styles
     - iOS safe area handling
-- **Mobile Optimization:**
-  - Touch-friendly button sizes
-  - iOS-specific fixes for tap highlights and scrolling
-  - Safe area inset padding for notched devices
-  - Standalone mode optimizations for PWA
+- **Z-Index Management:**
+  - Edit toggle: 10000 (highest)
+  - Favorite buttons: 1030
+  - Symbol buttons: 1010
+  - Popup overlay: 1000
+- **Animations:**
+  - Card pulse: Gentle 3s ease-in-out scaling
+  - Popup fade in: 0.3s ease
+  - Popup content scale in: 0.2s ease-out
+
+## Progressive Web App (PWA) Features
+
+- **Installable:** Can be added to home screen on mobile devices
+- **Standalone Mode:** Runs in full-screen mode without browser UI
+- **Custom Icon:** Uses dream machine.png as app icon
+- **Custom Splash Screen:** Configured for iOS devices
+- **Safe Area Handling:** Respects device notches and home indicators
+- **Theme Color:** Light blue theme (#f0f4ff)
+- **Orientation:** Default portrait orientation
+- **Touch Optimizations:**
+  - Disabled double-tap zoom
+  - Removed tap highlight effect
+  - Prevented touch callouts on images
 
 ## Development Workflow
 
@@ -132,12 +213,18 @@ This document provides an overview of the Now-Next application structure, explai
    npm run lint
    ```
 
+4. **Add New Symbols:**
+   - Place image in `/public/symbols/`
+   - Add entry in `src/data/symbols.ts`
+
 ## Key Features
 
 1. **Activity Management:**
    - Set "Now" and "Next" activities using symbols.
 2. **Symbol Selection:**
    - Choose from a variety of symbols to represent tasks.
+   - Filter symbols by categories (Morning Routine, Mealtime, Bedtime, Activities)
+   - Mark symbols as favorites for quick access
 3. **Responsive Design:**
    - Optimized for both desktop and mobile devices.
 4. **Progressive Web App (PWA):**
@@ -166,10 +253,9 @@ This document provides an overview of the Now-Next application structure, explai
    - Customizable animation settings
 
 4. **Enhanced Symbol Management:**
-   - Categories for symbols (e.g., morning routine, evening routine)
    - Custom symbol upload feature
    - Symbol search and filtering
-   - Favorites or frequently used symbols
+   - Advanced category management
 
 5. **User Experience:**
    - Haptic feedback on mobile devices

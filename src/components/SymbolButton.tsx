@@ -41,13 +41,20 @@ const SymbolButton: React.FC<SymbolButtonProps> = ({
       {isNow && <div className={styles.nowIndicator}>NOW</div>}
       
       {onToggleFavorite && (
-        <button 
+        <span 
           className={`${styles.favoriteButton} ${isFavorite ? styles.isFavorite : ''}`}
           onClick={handleFavoriteClick}
+          role="button"
+          tabIndex={0}
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              handleFavoriteClick(e as unknown as React.MouseEvent);
+            }
+          }}
         >
           {isFavorite ? '★' : '☆'}
-        </button>
+        </span>
       )}
       
       <span className={styles.symbolName}>

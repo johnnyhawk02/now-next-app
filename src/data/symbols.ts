@@ -65,6 +65,12 @@ export const SYMBOLS: Symbol[] = [
     categories: [CATEGORIES.MEALTIME],
   },
   {
+    id: 'dinner',
+    filename: 'dinner.png',
+    displayName: 'Dinner',
+    categories: [CATEGORIES.MEALTIME],
+  },
+  {
     id: 'bottle',
     filename: 'bottle.png',
     displayName: 'Bottle',
@@ -129,6 +135,18 @@ export const SYMBOLS: Symbol[] = [
     categories: [CATEGORIES.ACTIVITIES],
   },
   {
+    id: 'train',
+    filename: 'train.png',
+    displayName: 'Train',
+    categories: [CATEGORIES.ACTIVITIES],
+  },
+  {
+    id: 'pushchair',
+    filename: 'pushchair.png',
+    displayName: 'Pushchair',
+    categories: [CATEGORIES.ACTIVITIES, CATEGORIES.MORNING],
+  },
+  {
     id: 'ipad',
     filename: 'ipad.png',
     displayName: 'iPad',
@@ -158,12 +176,7 @@ export const SYMBOLS: Symbol[] = [
     displayName: 'Finished',
     categories: [CATEGORIES.ACTIVITIES],
   },
-  {
-    id: 'chat-gpt-image',
-    filename: 'ChatGPT Image Apr 5, 2025, 01_03_12 PM.png',
-    displayName: 'ChatGPT Image',
-    categories: [CATEGORIES.ACTIVITIES],
-  },
+
 ];
 
 // Helper functions
