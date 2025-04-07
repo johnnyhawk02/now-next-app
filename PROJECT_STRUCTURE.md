@@ -14,6 +14,9 @@ This document provides an overview of the Now-Next application structure, explai
 - **data/sequences.ts**: Data file containing the Sequence interface definition, predefined sequences, and helper functions for sequence management.
 - **components/AppBar.tsx**: Component for the top application bar, including title, edit mode toggle, and auto-announce toggle.
 - **components/AppBar.module.css**: Styles specific to the `AppBar` component.
+- **scripts/generateAudio.js**: Script for generating audio files for symbols using Google Cloud Text-to-Speech API.
+- **scripts/resizeSymbols.js**: Script for batch resizing of symbol images from 1024x1024 to 512x512.
+- **scripts/resizeSymbolsPng.js**: Script for selectively resizing only 1024x1024 PNG images while preserving originals.
 
 ## Component Structure & Responsibilities
 
@@ -52,13 +55,10 @@ This document provides an overview of the Now-Next application structure, explai
   - `title: string`: The title to display in the app bar.
   - `onEditModeToggle: () => void`: Callback to toggle edit mode.
   - `isEditMode: boolean`: Current state of edit mode.
-  - `autoAnnounce: boolean`: Current state of auto-announce feature.
-  - `onToggleAutoAnnounce: () => void`: Callback to toggle auto-announce.
-  - `onVoiceChange: () => void`: Placeholder for future voice selection functionality.
 - **Responsibilities:**
   - Displays the application title.
-  - Renders toggle switches for Edit Mode and Auto-Announce features.
-  - Calls back to `App.tsx` when toggles are changed.
+  - Renders toggle switch for Edit Mode.
+  - Calls back to `App.tsx` when toggle is changed.
 
 ### ActivityCard Component
 - **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
@@ -107,8 +107,9 @@ This document provides an overview of the Now-Next application structure, explai
   - `sequenceLength?: number`: Number of symbols in the sequence (when used in sequence mode).
 - **Responsibilities:**
   - Presents a full-screen modal for symbol selection.
-  - Provides category tabs for filtering symbols.
+  - Provides fixed (sticky) category tabs that remain visible when scrolling through symbols.
   - Displays a grid of symbols with favorites functionality.
+  - Features an 'X' close button in the header instead of a bottom close button.
   - Handles closing via backdrop click or close button.
   - Supports sequence creation mode with count indicator.
 
@@ -203,7 +204,7 @@ This document provides an overview of the Now-Next application structure, explai
    - Users can filter symbols by category using the tabs in the popup.
    - Selecting a symbol in the popup updates the corresponding state and closes the popup.
    - Users can toggle favorite status on symbols which persists to localStorage.
-   - The Edit Mode and Auto-Announce toggles in the `AppBar` control application behavior.
+   - The Edit Mode toggle in the `AppBar` controls application behavior.
    - Users can select sequences from the dropdown in the SequenceBar.
    - Navigation through sequence steps with prev/next buttons updates Now/Next cards.
 
@@ -261,11 +262,12 @@ This document provides an overview of the Now-Next application structure, explai
 ## UI/UX Features
 
 - **Full Screen Popup:** Symbol selection appears as a full-screen modal
+- **Fixed Category Tabs:** Category tabs remain fixed at the top when scrolling through symbols
 - **Category Filtering:** Tab navigation for filtering symbols by category
 - **Favorites System:** Star icons to mark frequently used symbols
+- **Symbol Grid Layout:** Symbols display in a responsive grid with consistent square proportions
 - **Now Card Animation:** Subtle pulsing effect (scale: 1.02) to highlight current activity
 - **Edit Mode Toggle:** Always visible toggle in the `AppBar` for switching modes
-- **Auto-Announce Toggle:** Always visible toggle in the `AppBar` to enable/disable automatic speech for the "Now" activity
 - **Safe Area Support:** All UI elements respect device notches and home indicators
 - **Sequence Navigation:** Prev/next buttons and dropdown for selecting and navigating sequences
 - **Sequence Bar:** Collapsible interface that can be minimized when not in use
@@ -338,11 +340,18 @@ This document provides an overview of the Now-Next application structure, explai
 
 4. **Add New Symbols:**
    - Place image in `/public/symbols/`
+   - For optimal performance, resize 1024x1024 images to 512x512 using the resize-png script:
+     ```bash
+     npm run resize-png
+     ```
    - Add entry in `src/data/symbols.ts`
 
-5. **Create New Sequences:**
-   - Add entry to `src/data/sequences.ts` for predefined sequences
-   - Use the UI to create user sequences
+5. **Generate Audio for Symbols:**
+   - Audio files are automatically created when running:
+     ```bash
+     npm run generate-audio
+     ```
+   - The script uses Google Cloud Text-to-Speech API to create MP3 files for each symbol
 
 ## Key Features
 
@@ -363,8 +372,9 @@ This document provides an overview of the Now-Next application structure, explai
    - Create, edit, and delete custom sequences.
    - Navigate through sequence steps with prev/next controls.
    - Visual step indicators to track progress through a sequence.
-7. **Auto Announce:**
-   - Automatically speaks the name of the "Now" activity using speech synthesis when it changes (can be toggled off).
+7. **On-Demand Audio:**
+   - Plays audio for the selected symbol when clicked.
+   - Uses pre-generated MP3 files for consistent audio quality.
 
 ## Future Enhancements
 
