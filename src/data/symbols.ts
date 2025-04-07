@@ -153,6 +153,12 @@ export const SYMBOLS: Symbol[] = [
     categories: [CATEGORIES.ACTIVITIES],
   },
   {
+    id: 'playground',
+    filename: 'playground.png',
+    displayName: 'playground',
+    categories: [CATEGORIES.ACTIVITIES],
+  },
+  {
     id: 'ice-lolly',
     filename: 'ice lolly.png',
     displayName: 'Ice Lolly',
@@ -162,6 +168,12 @@ export const SYMBOLS: Symbol[] = [
     id: 'easter-egg',
     filename: 'easter egg.png',
     displayName: 'Easter Egg',
+    categories: [CATEGORIES.ACTIVITIES],
+  },
+  {
+    id: 'entertainment',
+    filename: 'entertainment.png',
+    displayName: 'Entertainment',
     categories: [CATEGORIES.ACTIVITIES],
   },
   {

@@ -32,26 +32,10 @@ const App = () => {
   const [userCreatedSequences, setUserCreatedSequences] = useState<boolean[]>([]);
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [autoAnnounce, setAutoAnnounce] = useState(true);
   
   // Sequence editor state
   const [isSequenceEditorOpen, setIsSequenceEditorOpen] = useState(false);
   const [sequenceToEdit, setSequenceToEdit] = useState<Sequence | undefined>(undefined);
-
-  // Play audio for activity name automatically when it changes
-  useEffect(() => {
-    if (autoAnnounce && nowSymbol && !isEditMode && !isPopupOpen && !isSequenceEditorOpen) {
-      const symbol = getSymbolById(nowSymbol.replace('.png', ''));
-      const textToPlay = symbol?.displayName || nowSymbol.split('.')[0].replace(/([A-Z])/g, ' $1').trim().toLowerCase();
-      
-      // Add a small delay before playing audio to ensure UI has updated
-      const timer = setTimeout(() => {
-        playAudioForWord(textToPlay);
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [nowSymbol, isEditMode, isPopupOpen, isSequenceEditorOpen, autoAnnounce]);
 
   const handleSelectSymbol = (e: React.MouseEvent, symbolName: string) => {
     e.stopPropagation();
@@ -79,11 +63,6 @@ const App = () => {
 
   const handleEditModeToggle = () => {
     setIsEditMode(!isEditMode);
-  };
-  
-  // Toggle auto-announce feature
-  const toggleAutoAnnounce = () => {
-    setAutoAnnounce(prev => !prev);
   };
 
   const handleSelectSequence = (sequenceId: string) => {
@@ -323,9 +302,6 @@ const App = () => {
         title="Activity Planner" 
         onEditModeToggle={handleEditModeToggle}
         isEditMode={isEditMode}
-        autoAnnounce={autoAnnounce}
-        onToggleAutoAnnounce={toggleAutoAnnounce}
-        onVoiceChange={() => {}}
       />
       
       <div className={styles.content}>

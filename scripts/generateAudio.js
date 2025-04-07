@@ -9,6 +9,15 @@ import { execSync } from 'child_process';
 // Load environment variables from .env file
 dotenv.config();
 
+// Get the current file's directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Set the Google credentials file path directly
+const credentialsPath = path.join(__dirname, 'gen-lang-client-0613238072-c816d389f8bb.json');
+process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
+console.log(`Using Google credentials from: ${credentialsPath}`);
+
 // --- Configuration ---
 // *** USING RECOMMENDED SSML-COMPATIBLE VOICE ***
 const GOOGLE_TTS_VOICE_NAME = 'en-GB-Neural2-A'; // High quality, supports SSML
