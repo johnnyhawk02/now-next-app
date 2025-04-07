@@ -157,7 +157,7 @@ const SequenceBar: React.FC<SequenceBarProps> = ({
                 
                 return (
                   <div 
-                    key={`${symbolId}-${index}`} 
+                    key={`${selectedSequence.id}-${symbolId}-${index}`} 
                     className={`${styles.previewItem} ${index === currentStepIndex ? styles.currentStep : ''}`}
                   >
                     <img 

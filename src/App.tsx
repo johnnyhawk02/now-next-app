@@ -8,14 +8,14 @@ import {
   getAllCategories, 
   getSymbolsByCategory, 
   getAllFilenames,
-  getSymbolById
+  getSymbolById,
+  SYMBOLS
 } from './data/symbols';
 import {
   getAllSequences,
   Sequence,
   SEQUENCES
 } from './data/sequences';
-import { playAudioForWord } from './utils/speech';
 import styles from './App.module.css';
 
 const App = () => {
@@ -43,10 +43,137 @@ const App = () => {
     if (isPopupOpen === 'now') {
       setNowSymbol(symbolName);
       setIsPopupOpen(null);
+      
+      // Update the selected sequence if we have one
+      if (selectedSequenceId) {
+        updateSelectedSequence(symbolName, null);
+      }
     } else if (isPopupOpen === 'next') {
       setNextSymbol(symbolName);
       setIsPopupOpen(null);
+      
+      // Update the selected sequence if we have one
+      if (selectedSequenceId) {
+        updateSelectedSequence(null, symbolName);
+      }
     }
+  };
+
+  // Updates the currently selected sequence with new symbols
+  const updateSelectedSequence = (nowSymbolName: string | null, nextSymbolName: string | null) => {
+    if (!selectedSequenceId) return;
+    
+    const allSequences = [...SEQUENCES, ...userSequences];
+    const sequence = allSequences.find(seq => seq.id === selectedSequenceId);
+    if (!sequence) return;
+    
+    // Find symbol IDs from the filenames
+    const findSymbolIdByFilename = (filename: string | null) => {
+      if (!filename) return null;
+      const symbols = SYMBOLS.filter(s => s.filename === filename);
+      return symbols.length > 0 ? symbols[0].id : null;
+    };
+    
+    // Check if this is a user-created sequence or a preset
+    const sequenceIndex = sequences.findIndex(seq => seq.id === selectedSequenceId);
+    const isUserCreated = userCreatedSequences[sequenceIndex];
+    
+    if (isUserCreated) {
+      // For user-created sequence: Update the existing sequence
+      const updatedSequence = { ...sequence };
+      
+      // Update the symbol IDs at the current step and next step
+      if (nowSymbolName) {
+        const nowSymbolId = findSymbolIdByFilename(nowSymbolName);
+        if (nowSymbolId) {
+          updatedSequence.symbolIds[currentStepIndex] = nowSymbolId;
+        }
+      }
+      
+      if (nextSymbolName && currentStepIndex + 1 < sequence.symbolIds.length) {
+        const nextSymbolId = findSymbolIdByFilename(nextSymbolName);
+        if (nextSymbolId) {
+          updatedSequence.symbolIds[currentStepIndex + 1] = nextSymbolId;
+        }
+      }
+      
+      // Update the user sequences
+      const userSequenceIndex = userSequences.findIndex(seq => seq.id === selectedSequenceId);
+      if (userSequenceIndex >= 0) {
+        const updatedUserSequences = [...userSequences];
+        updatedUserSequences[userSequenceIndex] = updatedSequence;
+        setUserSequences(updatedUserSequences);
+      }
+    } else {
+      // For preset sequence: Create a new user sequence based on the preset
+      createUserSequenceFromPreset(sequence, nowSymbolName, nextSymbolName);
+    }
+  };
+
+  // Create a new user sequence based on a preset sequence
+  const createUserSequenceFromPreset = (
+    presetSequence: Sequence,
+    nowSymbolName: string | null,
+    nextSymbolName: string | null
+  ) => {
+    // Create a copy of the preset sequence
+    const newSequence: Sequence = {
+      ...presetSequence,
+      id: generateUniqueSequenceId(presetSequence.name),
+      name: generateUniqueSequenceName(presetSequence.name),
+    };
+
+    // Apply the symbol changes if provided
+    if (nowSymbolName) {
+      const nowSymbolId = SYMBOLS.find(s => s.filename === nowSymbolName)?.id;
+      if (nowSymbolId) {
+        newSequence.symbolIds[currentStepIndex] = nowSymbolId;
+      }
+    }
+    
+    if (nextSymbolName && currentStepIndex + 1 < presetSequence.symbolIds.length) {
+      const nextSymbolId = SYMBOLS.find(s => s.filename === nextSymbolName)?.id;
+      if (nextSymbolId) {
+        newSequence.symbolIds[currentStepIndex + 1] = nextSymbolId;
+      }
+    }
+
+    // Add to user sequences
+    setUserSequences(prev => [...prev, newSequence]);
+    
+    // Select the new sequence
+    setSelectedSequenceId(newSequence.id);
+  };
+
+  // Generate a unique name for a sequence like "PresetName_001"
+  const generateUniqueSequenceName = (baseName: string): string => {
+    let counter = 1;
+    let newName = `${baseName}_001`;
+    
+    // Keep incrementing the counter until we find a unique name
+    while (userSequences.some(seq => seq.name === newName)) {
+      counter++;
+      newName = `${baseName}_${counter.toString().padStart(3, '0')}`;
+    }
+    
+    return newName;
+  };
+
+  // Generate a unique ID for a sequence based on its name
+  const generateUniqueSequenceId = (baseName: string): string => {
+    // Create a base ID by lowercasing and replacing spaces with hyphens
+    const baseId = `${baseName.toLowerCase().replace(/\s+/g, '-')}-copy`;
+    
+    let counter = 1;
+    let newId = `${baseId}-${counter.toString().padStart(3, '0')}`;
+    
+    // Keep incrementing the counter until we find a unique ID
+    while ([...SEQUENCES, ...userSequences].some(seq => seq.id === newId)) {
+      counter++;
+      newId = `${baseId}-${counter.toString().padStart(3, '0')}`;
+    }
+    
+    return newId;
   };
 
   const openPopup = (type: 'now' | 'next') => {
