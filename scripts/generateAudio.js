@@ -482,8 +482,8 @@ async function generateAppAudio() {
     const processedSymbols = new Set();
 
     for (const file of symbolFiles) {
-      if (!/\.(png|jpg|jpeg|gif)$/i.test(file)) {
-        continue; // Skip non-image files
+      if (!/\.(png|jpg|jpeg|gif)$/i.test(file) || /_original\./i.test(file)) {
+        continue; // Skip non-image files and files with '_original' in the name
       }
 
       const baseName = file

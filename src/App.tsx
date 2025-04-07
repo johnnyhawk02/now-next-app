@@ -297,22 +297,24 @@ const App = () => {
     }
   };
   
+  // Prevent deletion or replacement of 'finished' in the sequence editor
   const handleSaveSequence = (sequence: Sequence) => {
-    // Check if we're updating an existing sequence
+    const filteredSymbols = sequence.symbolIds.filter(id => id !== 'finished');
+    const updatedSequence = {
+      ...sequence,
+      symbolIds: [...filteredSymbols, 'finished'],
+    };
+
     const existingIndex = userSequences.findIndex(seq => seq.id === sequence.id);
-    
     if (existingIndex >= 0) {
-      // Update existing sequence
       const updatedSequences = [...userSequences];
-      updatedSequences[existingIndex] = sequence;
+      updatedSequences[existingIndex] = updatedSequence;
       setUserSequences(updatedSequences);
     } else {
-      // Add new sequence
-      setUserSequences(prev => [...prev, sequence]);
+      setUserSequences(prev => [...prev, updatedSequence]);
     }
-    
-    // Select the saved sequence
-    setSelectedSequenceId(sequence.id);
+
+    setSelectedSequenceId(updatedSequence.id);
     setCurrentStepIndex(0);
   };
 
@@ -422,6 +424,25 @@ const App = () => {
       updateSymbolsForStep(currentStepIndex);
     }
   }, [selectedSequenceId, currentStepIndex]);
+
+  // Ensure 'finished' is always at the end of user-generated sequences
+  useEffect(() => {
+    const hasChanges = userSequences.some(sequence => {
+      const lastSymbol = sequence.symbolIds[sequence.symbolIds.length - 1];
+      return lastSymbol !== 'finished';
+    });
+
+    if (hasChanges) {
+      const updatedUserSequences = userSequences.map(sequence => {
+        const filteredSymbols = sequence.symbolIds.filter(id => id !== 'finished');
+        return {
+          ...sequence,
+          symbolIds: [...filteredSymbols, 'finished'],
+        };
+      });
+      setUserSequences(updatedUserSequences);
+    }
+  }, [userSequences]);
 
   return (
     <div className={styles.container}>

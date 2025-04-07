@@ -24,6 +24,7 @@ export const SEQUENCES: Sequence[] = [
       'bedtime-song', // Bedtime song
       'dream-machine', // Dream machine
       'sleep', // Sleep
+      'finished', // All done
     ]
   },
   {
@@ -37,6 +38,7 @@ export const SEQUENCES: Sequence[] = [
       'get-dressed', // Get dressed
       'bottle', // Breakfast/bottle
       'pushchair', // Ready to go out
+      'finished', // All done
     ]
   },
   {
@@ -52,6 +54,13 @@ export const SEQUENCES: Sequence[] = [
     ]
   }
 ];
+
+// Add 'finished' to the end of all sequences
+SEQUENCES.forEach(sequence => {
+  if (!sequence.symbolIds.includes('finished')) {
+    sequence.symbolIds.push('finished');
+  }
+});
 
 // Helper functions
 export const getSequenceById = (id: string): Sequence | undefined => {

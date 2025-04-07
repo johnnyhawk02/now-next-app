@@ -177,6 +177,12 @@ export const SYMBOLS: Symbol[] = [
     categories: [CATEGORIES.ACTIVITIES],
   },
   {
+    id: 'cottage',
+    filename: 'cottage.png',
+    displayName: 'Cottage',
+    categories: [CATEGORIES.ACTIVITIES],
+  },
+  {
     id: 'chloe',
     filename: 'Chloe.png',
     displayName: 'Chloe',
@@ -192,6 +198,18 @@ export const SYMBOLS: Symbol[] = [
     id: 'finished',
     filename: 'finished.png',
     displayName: 'Finished',
+    categories: [CATEGORIES.ACTIVITIES],
+  },
+  {
+    id: 'blackpool',
+    filename: 'blackpool.png',
+    displayName: 'Blackpool',
+    categories: [CATEGORIES.ACTIVITIES],
+  },
+  {
+    id: 'izzi',
+    filename: 'izzi.png',
+    displayName: 'Izzi',
     categories: [CATEGORIES.ACTIVITIES],
   },
 

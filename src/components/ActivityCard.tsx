@@ -9,6 +9,7 @@ interface ActivityCardProps {
   onClick?: () => void;
   isFocus?: boolean;
   isEditMode?: boolean;
+  onRemove?: () => void; // New prop for handling removal
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
@@ -17,6 +18,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   onClick,
   isFocus,
   isEditMode,
+  onRemove,
 }) => {
   const handleCardClick = () => {
     if (isEditMode && onClick) {
@@ -33,11 +35,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
   return (
     <div className={styles.container}>
-      <div className={styles.toggleContainer}>
-        <label className={styles.toggleLabel}>
-   
-        </label>
-      </div>
+      {isEditMode && symbolFilename !== 'finished.png' && (
+        <button
+          className={styles.removeButton} // Add styling for the remove button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the card click
+            if (onRemove) onRemove();
+          }}
+        >
+          X
+        </button>
+      )}
       <div
         className={`${styles.card} ${isFocus ? styles.focusCard : ''}`}
         onClick={handleCardClick}

@@ -1,13 +1,17 @@
 .card {
-  width: 100%;
+  width: 80%; /* Adjusted to 80% of the original size */
+  height: 80%; /* Adjusted to 80% of the original size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto; /* Center vertically and horizontally */
+  background-color: transparent; /* Ensure background remains transparent */
   padding: 1rem;
   background: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 0.75rem;
   text-align: center;
-  display: flex;
   flex-direction: column;
-  align-items: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   /* Increase tap target size */
   min-height: 150px;
@@ -117,4 +121,10 @@
   color: #aaa;
   text-align: center;
   margin-top: 0.5rem;
+}
+
+.symbolImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Keep image size unchanged */
 }
