@@ -17,6 +17,7 @@ This document provides an overview of the Now-Next application structure, explai
 - **scripts/generateAudio.js**: Script for generating audio files for symbols using Google Cloud Text-to-Speech API.
 - **scripts/resizeSymbols.js**: Script for batch resizing of symbol images from 1024x1024 to 512x512.
 - **scripts/resizeSymbolsPng.js**: Script for selectively resizing only 1024x1024 PNG images while preserving originals.
+- **scripts/generate_audio.py**: Python script for generating audio files for symbols using the Coqui TTS library. It processes symbols in the `public/symbols` directory and saves audio files in the `public/audio` directory.
 
 ## Component Structure & Responsibilities
 

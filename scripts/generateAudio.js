@@ -1,5 +1,5 @@
 // Import necessary modules
-import textToSpeech from '@google-cloud/text-to-speech';
+import TTS from 'TTS';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url'; // To handle __dirname equivalent in ES modules
@@ -13,23 +13,13 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Set the Google credentials file path directly
-const credentialsPath = path.join(__dirname, 'gen-lang-client-0613238072-c816d389f8bb.json');
-process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
-console.log(`Using Google credentials from: ${credentialsPath}`);
-
 // --- Configuration ---
-// *** USING RECOMMENDED SSML-COMPATIBLE VOICE ***
-const GOOGLE_TTS_VOICE_NAME = 'en-GB-Neural2-A'; // High quality, supports SSML
-// Other options: 'en-GB-Wavenet-A', 'en-GB-Standard-A', etc. (and B/C/D/F variants)
-const GOOGLE_TTS_LANGUAGE_CODE = 'en-GB';
-const AUDIO_ENCODING_FOR_SYNTHESIS = 'LINEAR16'; // WAV format for intermediate processing
 const FINAL_AUDIO_FORMAT = 'mp3'; // Final output format
 const FFMPEG_SILENCE_THRESHOLD = '-50dB'; // Adjust based on TTS output silence level
-const API_CALL_DELAY_MS = 500; // Delay between Google TTS API calls (adjust if rate limited)
+const API_CALL_DELAY_MS = 500; // Delay between TTS API calls
 
-// Initialize Google Cloud Text-to-Speech client
-const client = new textToSpeech.TextToSpeechClient();
+// Initialize TTS client
+const tts = new TTS();
 
 // --- Utility Functions ---
 
@@ -106,30 +96,19 @@ async function ensureTempDirectory() {
 }
 
 /**
- * Synthesizes speech using Google Cloud TTS.
- * @param {string} text - The text or SSML to synthesize.
- * @param {boolean} [useSSML=false] - Whether the input text is SSML.
+ * Synthesizes speech using the TTS library.
+ * @param {string} text - The text to synthesize.
  * @returns {Promise<Buffer|null>} - The audio content buffer, or null on error.
  */
-const synthesizeSpeech = async (text, useSSML = false) => {
-  const request = {
-    input: useSSML ? { ssml: text } : { text },
-    voice: {
-      languageCode: GOOGLE_TTS_LANGUAGE_CODE,
-      name: GOOGLE_TTS_VOICE_NAME,
-    },
-    audioConfig: { audioEncoding: AUDIO_ENCODING_FOR_SYNTHESIS }, // Using WAV
-  };
-
+const synthesizeSpeech = async (text) => {
   try {
-    console.log(`Requesting TTS for: ${useSSML ? 'SSML' : text.substring(0, 50) + (text.length > 50 ? '...' : '')}`); // Log request
-    const [response] = await client.synthesizeSpeech(request);
-    console.log(`TTS synthesis successful for: ${useSSML ? 'SSML' : text.substring(0, 50) + (text.length > 50 ? '...' : '')}`);
-    return response.audioContent;
+    console.log(`Requesting TTS for: ${text.substring(0, 50) + (text.length > 50 ? '...' : '')}`);
+    const audioBuffer = await tts.speak({ text });
+    console.log(`TTS synthesis successful for: ${text.substring(0, 50) + (text.length > 50 ? '...' : '')}`);
+    return audioBuffer;
   } catch (error) {
-      console.error(`Google TTS API error for input "${useSSML ? 'SSML Input' : text.substring(0, 50) + (text.length > 50 ? '...' : '')}":`, error.message || error);
-      if (error.details) console.error("Error details:", error.details);
-      return null; // Indicate failure
+    console.error(`TTS API error for input "${text.substring(0, 50) + (text.length > 50 ? '...' : '')}":`, error.message || error);
+    return null; // Indicate failure
   }
 };
 
@@ -180,38 +159,37 @@ async function processAudio(wavFile, outputMP3, tempDir) {
 
 /**
  * Generates a single audio file: synthesizes to WAV, processes (trims/converts), saves as MP3.
- * @param {string} text - The text or SSML to synthesize.
+ * @param {string} text - The text to synthesize.
  * @param {string} outputMP3Path - The final desired path for the MP3 file.
- * @param {boolean} [useSSML=false] - Whether the input text is SSML.
  * @returns {Promise<boolean>} - True on success, false on failure.
  */
-async function generateAudioFile(text, outputMP3Path, useSSML = false) {
+async function generateAudioFile(text, outputMP3Path) {
   let tempWavPath = '';
   try {
     const tempDir = await ensureTempDirectory();
     const baseOutputName = path.basename(outputMP3Path, `.${FINAL_AUDIO_FORMAT}`);
     tempWavPath = path.join(tempDir, `${baseOutputName}_raw.wav`);
 
-    const audioContent = await synthesizeSpeech(text, useSSML);
+    const audioContent = await synthesizeSpeech(text);
     if (!audioContent) {
-        console.error(`Skipping processing for "${useSSML ? 'SSML Input' : text.substring(0, 50) + (text.length > 50 ? '...' : '')}" due to TTS API error.`);
-        return false;
+      console.error(`Skipping processing for "${text.substring(0, 50) + (text.length > 50 ? '...' : '')}" due to TTS API error.`);
+      return false;
     }
-    await fs.writeFile(tempWavPath, audioContent, 'binary');
+    await fs.writeFile(tempWavPath, audioContent);
     console.log(`Generated intermediate WAV: ${path.basename(tempWavPath)}`);
 
     const success = await processAudio(tempWavPath, outputMP3Path, tempDir);
     return success;
 
   } catch (error) {
-    console.error(`Error generating audio file ${path.basename(outputMP3Path)} for "${useSSML ? 'SSML Input' : text.substring(0, 50) + (text.length > 50 ? '...' : '')}":`, error);
-     if (tempWavPath && await directoryExists(tempWavPath)) {
-        try {
-            await fs.unlink(tempWavPath);
-        } catch (cleanupError) {
-            console.warn(`Warning: Failed to clean up temporary WAV ${tempWavPath} after error:`, cleanupError.message);
-        }
-     }
+    console.error(`Error generating audio file ${path.basename(outputMP3Path)} for "${text.substring(0, 50) + (text.length > 50 ? '...' : '')}":`, error);
+    if (tempWavPath && await directoryExists(tempWavPath)) {
+      try {
+        await fs.unlink(tempWavPath);
+      } catch (cleanupError) {
+        console.warn(`Warning: Failed to clean up temporary WAV ${tempWavPath} after error:`, cleanupError.message);
+      }
+    }
     return false;
   }
 }
@@ -280,7 +258,6 @@ async function processQuestionVariations(questionDir, baseName, variations, dela
  */
 async function generateAllAudio() {
   console.log("Starting audio generation process...");
-  console.log(`Using TTS Voice: ${GOOGLE_TTS_VOICE_NAME}`);
   try {
     // --- Define Base Paths ---
     const __filename = fileURLToPath(import.meta.url);

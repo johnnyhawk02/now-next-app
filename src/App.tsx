@@ -461,12 +461,6 @@ const App = () => {
             isFocus={true}
             isEditMode={isEditMode}
           />
-          <ActivityCard
-            title="Next"
-            symbolFilename={nextSymbol}
-            onClick={() => openPopup('next')}
-            isEditMode={isEditMode}
-          />
         </div>
       </div>
       
