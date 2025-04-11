@@ -5,7 +5,6 @@ import styles from './SymbolButton.module.css';
 interface SymbolButtonProps {
   symbolName: string; // This is actually the filename
   onClick: (e: React.MouseEvent) => void;
-  isNow?: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
 }
@@ -13,11 +12,10 @@ interface SymbolButtonProps {
 const SymbolButton: React.FC<SymbolButtonProps> = ({ 
   symbolName, 
   onClick, 
-  isNow = false,
   isFavorite = false,
   onToggleFavorite
 }) => {
-  const buttonClasses = `${styles.symbolButton} ${isNow ? styles.nowSymbol : ''}`;
+  const buttonClasses = `${styles.symbolButton}`;
   const symbol = getSymbolByFilename(symbolName);
   
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -38,7 +36,6 @@ const SymbolButton: React.FC<SymbolButtonProps> = ({
         alt={symbol?.displayName || symbolName.split('.')[0]}
         title={symbol?.displayName}
       />
-      {isNow && <div className={styles.nowIndicator}>NOW</div>}
       
       {onToggleFavorite && (
         <span 

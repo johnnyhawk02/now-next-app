@@ -1,34 +1,38 @@
+.container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .card {
-  width: 80%; /* Adjusted to 80% of the original size */
-  height: 80%; /* Adjusted to 80% of the original size */
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: auto; /* Center vertically and horizontally */
-  background-color: transparent; /* Ensure background remains transparent */
+  margin: 0; /* Remove auto margin */
+  background-color: transparent;
   padding: 1rem;
   background: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 0.75rem;
   text-align: center;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  /* Increase tap target size */
+  /* Removed transition property */
   min-height: 150px;
   cursor: pointer;
 }
 
 .card:active {
-  transform: scale(0.98);
+  /* Removed transform scale */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card img {
   width: 100%;
-  max-width: 150px; /* Increased from 100px */
   height: auto;
+  max-width: 100%;
   object-fit: contain;
-  /* Add a slight drop shadow to make images stand out */
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   margin: 0 auto 0.5rem;
   display: block;
@@ -50,8 +54,9 @@
 /* Ensure larger tap target on mobile */
 @media (max-width: 480px) {
   .card {
-    padding: 1.25rem;
+    padding: 1rem;
     min-height: 160px;
+    width: 100%;
   }
   
   .card h2 {
@@ -59,13 +64,14 @@
   }
   
   .card img {
-    max-width: 180px; /* Increased from 120px */
+    max-width: 100%;
   }
 }
 
 @media (min-width: 768px) {
   .card {
-    max-width: 250px;
+    /* Removed max-width constraint to allow full width */
+    width: 100%;
     padding: 1rem;
   }
 
@@ -79,34 +85,12 @@
   background-color: #e8f5e9; /* Subtle light GREEN background tint */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
   border: 1px solid #c8e6c9; /* Optional: slightly darker green border */
-  /* More gentle animation with longer duration */
-  animation: gentlePulse 3s ease-in-out infinite;
+  /* Removed animation property */
 }
 
 .focusCard:hover {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Even more shadow on hover */
-  /* Optionally pause or keep animation on hover */
-  /* animation-play-state: paused; */
-}
-
-.focusCard h2 {
-  color: #2e7d32; /* Darker green title for focus */
-}
-
-/* Define the more pronounced pulse animation */
-@keyframes gentlePulse {
-  0% {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.25);
-    transform: scale(1.02);
-  }
-  100% {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    transform: scale(1);
-  }
+  /* Removed animation-play-state */
 }
 
 .symbolText {

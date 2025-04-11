@@ -49,13 +49,22 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       <div
         className={`${styles.card} ${isFocus ? styles.focusCard : ''}`}
         onClick={handleCardClick}
-        style={{ cursor: 'pointer' }} // Always show pointer cursor for better UX
+        style={{ 
+          cursor: 'pointer',
+          width: '100%', 
+          maxWidth: '100%' 
+        }}
       >
         {symbolFilename ? (
           <img
             src={`/symbols/${symbolFilename}`}
             alt={title}
             className={styles.symbolImage}
+            style={{ 
+              width: '100%', 
+              maxWidth: '100%', 
+              objectFit: 'contain' 
+            }}
           />
         ) : (
           <p className={styles.placeholderText}>No Symbol</p>
