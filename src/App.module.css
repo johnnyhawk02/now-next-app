@@ -37,7 +37,7 @@
   width: 100%;
   /* Removed max-width: 400px constraint */
   margin: 0 auto;
-  animation: scaleIn 0.3s ease-out;
+  /* Removed animation */
 }
 
 .burgerButton {
@@ -50,7 +50,7 @@
   background-color: #3498db;
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  /* Removed transition */
   margin: 1rem 0;
   /* Make button larger and more touch-friendly for mobile */
   min-height: 44px;
@@ -62,7 +62,7 @@
 }
 
 .burgerButton:active {
-  transform: scale(0.96);
+  /* Removed transform scale */
 }
 
 .actionButtons {
@@ -83,7 +83,7 @@
   border: none;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  /* Removed transition */
 }
 
 .actionButtons button:hover {
@@ -91,7 +91,7 @@
 }
 
 .actionButtons button:active {
-  transform: scale(0.97);
+  /* Removed transform scale */
 }
 
 .editModeButton {
@@ -106,7 +106,7 @@
   border-radius: 0.5rem;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  /* Removed transition */
 }
 
 .editModeButton:hover {
@@ -114,7 +114,7 @@
 }
 
 .editModeButton:active {
-  transform: scale(0.97);
+  /* Removed transform scale */
 }
 
 .editModeToggleContainer {
@@ -177,10 +177,9 @@
   right: 0;
   bottom: 0;
   background-color: rgba(228, 228, 231, 0.8);
-  transition: .3s ease;
+  /* Removed transition */
   border-radius: 20px;
-  -webkit-transform: translate3d(0,0,0);
-  transform: translate3d(0,0,0);
+  /* Removed transform property */
 }
 
 .toggleSlider:before {
@@ -191,11 +190,10 @@
   left: 2px;
   bottom: 2px;
   background-color: white;
-  transition: .3s ease;
+  /* Removed transition */
   border-radius: 50%;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  -webkit-transform: translate3d(0,0,0);
-  transform: translate3d(0,0,0);
+  /* Removed transform property */
 }
 
 .editModeToggle:checked + .toggleSlider {
@@ -203,7 +201,8 @@
 }
 
 .editModeToggle:checked + .toggleSlider:before {
-  transform: translate3d(20px,0,0);
+  /* Change to use left property instead of transform */
+  left: 22px;
 }
 
 .toggleSlider:hover {

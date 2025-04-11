@@ -22,7 +22,7 @@
   overflow-y: auto;
   padding: 1.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  animation: scaleIn 0.3s ease-out;
+  /* Removed animation */
 }
 
 .title {
@@ -145,7 +145,7 @@
   color: #555;
   font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s;
+  /* Removed transition */
 }
 
 .symbolButton:hover {
@@ -177,12 +177,12 @@
   border: 1px solid #eee;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  /* Removed transition */
   background-color: #f8f9fa;
 }
 
 .symbolOption:hover {
-  transform: translateY(-2px);
+  /* Removed transform property */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: #f0f7ff;
 }
@@ -218,7 +218,7 @@
   font-size: 0.9rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  /* Removed transition */
 }
 
 .cancelButton:hover {
@@ -233,7 +233,7 @@
   font-size: 0.9rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  /* Removed transition */
 }
 
 .saveButton:hover {
@@ -262,7 +262,7 @@
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  /* Removed transition */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -271,7 +271,7 @@
 }
 
 .chooseSymbolButton:active {
-  transform: scale(0.98);
+  /* Removed transform property */
 }
 
 @media (max-width: 480px) {
