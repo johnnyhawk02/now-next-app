@@ -7,7 +7,6 @@ interface ActivityCardProps {
   title: string;
   symbolFilename: string | null;
   onClick?: () => void;
-  isFocus?: boolean;
   isEditMode?: boolean;
   onRemove?: () => void; // New prop for handling removal
 }
@@ -16,7 +15,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   title,
   symbolFilename,
   onClick,
-  isFocus,
   isEditMode,
   onRemove,
 }) => {
@@ -47,7 +45,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </button>
       )}
       <div
-        className={`${styles.card} ${isFocus ? styles.focusCard : ''}`}
+        className={styles.card}
         onClick={handleCardClick}
         style={{ 
           cursor: 'pointer',

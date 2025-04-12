@@ -34,6 +34,8 @@ const SequenceBar: React.FC<SequenceBarProps> = ({
   const selectedSequence = sequences.find(seq => seq.id === selectedSequenceId);
   const totalSteps = selectedSequence ? selectedSequence.symbolIds.length : 0;
   const isUserCreated = selectedSequence ? userCreatedSequences[sequences.indexOf(selectedSequence)] : false;
+  const displayStepNumber = currentStepIndex + 2;
+  const isLastStepActive = currentStepIndex === totalSteps - 1;
   
   // Sync expanded state with edit mode
   useEffect(() => {
@@ -88,9 +90,14 @@ const SequenceBar: React.FC<SequenceBarProps> = ({
             )}
           </select>
           
-          {selectedSequence && (
+          {selectedSequence && !isLastStepActive && (
             <div className={styles.stepIndicator}>
-              {currentStepIndex + 1} / {totalSteps}
+              {displayStepNumber} / {totalSteps}
+            </div>
+          )}
+          {selectedSequence && isLastStepActive && (
+            <div className={styles.stepIndicator}>
+                Done!
             </div>
           )}
         </div>
@@ -155,10 +162,12 @@ const SequenceBar: React.FC<SequenceBarProps> = ({
                 const symbol = getSymbolById(symbolId);
                 if (!symbol) return null;
                 
+                const isUpcomingStep = index === currentStepIndex + 1;
+
                 return (
                   <div 
                     key={`${selectedSequence.id}-${symbolId}-${index}`} 
-                    className={`${styles.previewItem} ${index === currentStepIndex ? styles.currentStep : ''}`}
+                    className={`${styles.previewItem} ${isUpcomingStep ? styles.currentStep : ''}`}
                   >
                     <img 
                       src={`/symbols/${symbol.filename}`} 

@@ -30,14 +30,12 @@
   font-weight: bold;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
+.activityCardContainer {
   width: 100%;
-  /* Removed max-width: 400px constraint */
-  margin: 0 auto;
-  /* Removed animation */
+  max-width: 400px; /* Or adjust as needed */
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem; /* Add some space below the card */
 }
 
 .burgerButton {
@@ -214,17 +212,13 @@
 }
 
 @media (min-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-  }
-
   .title {
     font-size: 2.5rem;
-  }
-  
-  .content {
     padding-top: calc(64px + 1rem); /* Larger AppBar on desktop */
+  }
+
+  .activityCardContainer {
+    max-width: 500px; /* Slightly larger max-width on bigger screens */
   }
 }
 

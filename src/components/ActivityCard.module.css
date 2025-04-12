@@ -80,19 +80,6 @@
   }
 }
 
-/* Styles for the focused 'Now' card */
-.focusCard {
-  background-color: #e8f5e9; /* Subtle light GREEN background tint */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
-  border: 1px solid #c8e6c9; /* Optional: slightly darker green border */
-  /* Removed animation property */
-}
-
-.focusCard:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Even more shadow on hover */
-  /* Removed animation-play-state */
-}
-
 .symbolText {
   font-size: 1rem;
   color: #555;
@@ -111,4 +98,5 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain; /* Keep image size unchanged */
+  display: block;
 }

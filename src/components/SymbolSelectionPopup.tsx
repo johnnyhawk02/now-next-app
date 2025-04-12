@@ -4,7 +4,7 @@ import styles from './SymbolSelectionPopup.module.css';
 
 interface SymbolSelectionPopupProps {
   isOpen: boolean;
-  popupType: 'now' | 'next' | 'sequence' | null;
+  popupType: 'next' | 'sequence' | null;
   title?: string;
   onClose: () => void;
   onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void;
@@ -32,6 +32,14 @@ const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
 }) => {
   if (!isOpen) return null;
   
+  // Determine the title based on popupType
+  let dynamicTitle = 'Select Symbol'; // Default title
+  if (popupType === 'next') {
+      dynamicTitle = 'Select Next Symbol';
+  } else if (popupType === 'sequence') {
+      dynamicTitle = 'Add Symbol to Sequence'; // Updated title for sequence mode
+  }
+
   return (
     <div className={styles.popupOverlay} onClick={onClose}>
       <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
@@ -39,15 +47,11 @@ const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
         <div className={styles.headerContent}>
           <div className={styles.headerTop}>
             <h2 className={styles.popupTitle}>
-              {popupType === 'now' && 'Select Now Symbol'}
-              {popupType === 'next' && 'Select Next Symbol'}
+              {dynamicTitle} {/* Use dynamic title */} 
               {popupType === 'sequence' && (
-                <>
-                  Create Sequence
-                  <div className={styles.sequenceInfo}>
-                    Selected: {sequenceLength} symbols
-                  </div>
-                </>
+                <div className={styles.sequenceInfo}>
+                  Selected: {sequenceLength} symbols
+                </div>
               )}
             </h2>
             <button className={styles.closeX} onClick={onClose}>✕</button>

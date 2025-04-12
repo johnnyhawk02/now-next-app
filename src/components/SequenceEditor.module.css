@@ -22,7 +22,7 @@
   overflow-y: auto;
   padding: 1.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  /* Removed animation */
+  padding-bottom: 80px;
 }
 
 .title {
@@ -60,218 +60,185 @@
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 1rem;
-  color: #333;
+  color: #444;
+  margin-bottom: 0.5rem;
 }
 
 .symbolsContainer {
-  margin-bottom: 1.5rem;
+  margin-top: 1rem;
 }
 
 .emptyMessage {
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 0.5rem;
-  text-align: center;
-  color: #6c757d;
-  margin-bottom: 1.5rem;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 1rem;
 }
 
-.selectedSymbols {
+/* New styles for horizontal flow layout */
+.selectedSymbolsFlow {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  max-height: 300px;
-  overflow-y: auto;
+  flex-wrap: wrap;
+  align-items: center; /* Align items vertically */
+  gap: 0; /* Remove gap, use margin on insertion point instead */
   padding: 0.5rem;
+  margin-bottom: 1.5rem;
   border: 1px solid #ddd;
-  border-radius: 0.5rem;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  min-height: 50px; /* Ensure it has some height even when empty */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.selectedSymbol {
-  display: flex;
+.selectedSymbolChip {
+  display: inline-flex;
   align-items: center;
-  padding: 0.75rem;
-  border: 1px solid #eee;
-  border-radius: 0.5rem;
-  background-color: #f8f9fa;
+  background-color: #e9ecef;
+  border-radius: 8px; /* Slightly less rounded */
+  padding: 0.5rem; /* Increased padding */
   position: relative;
+  min-width: 70px; /* Minimum width for buttons */
+  min-height: 70px; /* Minimum height for buttons */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.symbolImage {
-  width: 40px;
-  height: 40px;
+/* Renamed from symbolImageSmall */
+.symbolImageMedium {
+  width: 50px;  /* Increased size */
+  height: 50px; /* Increased size */
   object-fit: contain;
-  margin-right: 1rem;
+  display: block; /* Ensure it behaves like a block */
+  margin: 0 auto; /* Center image */
 }
 
-.symbolName {
-  flex-grow: 1;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.symbolIndex {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #4a90e2;
+.removeSymbolButton {
+  position: absolute;
+  top: 2px; /* Adjusted position */
+  right: 2px; /* Adjusted position */
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.4);
   color: white;
+  border: none;
   border-radius: 50%;
-  font-size: 0.8rem;
-  margin-left: 1rem;
-}
-
-.symbolControls {
-  display: flex;
-  gap: 0.35rem;
-}
-
-.symbolButton {
-  width: 28px;
-  height: 28px;
-  padding: 0;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.25rem;
-  border: 1px solid #ddd;
-  background-color: white;
-  color: #555;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  z-index: 1; /* Ensure it's above move buttons if overlap */
+  /* Removed transform */
+}
+
+.removeSymbolButton:hover {
+  background-color: rgba(211, 47, 47, 0.9); /* Red color on hover */
+  opacity: 1;
+}
+
+/* New styles for Move buttons */
+.moveButton {
+  position: absolute;
+  bottom: 2px; /* Position at the bottom */
+  width: 22px;
+  height: 22px;
+  background-color: rgba(74, 144, 226, 0.7); /* Blueish background */
+  color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  /* Removed transition */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 
-.symbolButton:hover {
-  background-color: #f0f0f0;
+.moveButton:hover:not(:disabled) {
+  background-color: rgba(74, 144, 226, 1); /* Darker blue on hover */
+  opacity: 1;
 }
 
-.symbolButton:disabled {
-  opacity: 0.5;
+.moveButton:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
-.availableSymbols {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
-  max-height: 200px;
-  overflow-y: auto;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+.moveLeftButton {
+  left: 2px;
 }
 
-.symbolOption {
+.moveRightButton {
+  right: 2px;
+}
+
+/* Removed old styles for symbolImageSmall */
+
+/* New styles for integrated symbol browser */
+.availableSymbolsList {
+  max-height: 250px; /* Slightly more height */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Responsive grid */
+  gap: 0.5rem;
+  background-color: #fff;
+}
+
+.symbolOptionItem {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0.5rem;
-  border: 1px solid #eee;
-  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
   cursor: pointer;
-  /* Removed transition */
-  background-color: #f8f9fa;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  text-align: center; /* Center content */
 }
 
-.symbolOption:hover {
-  /* Removed transform property */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #f0f7ff;
+.symbolOptionItem:hover {
+  background-color: #f0f4ff;
+  border-color: #c2d4f8;
 }
 
-.symbolOption .symbolName {
-  font-size: 0.8rem;
+/* Use medium image class here too */
+.symbolOptionItem .symbolImageMedium {
+  width: 60px; /* Slightly larger in the picker */
+  height: 60px;
+  margin-bottom: 0.25rem;
+}
+
+.symbolNameSmall {
+  font-size: 0.75rem;
+  color: #333;
   text-align: center;
-  margin-top: 0.35rem;
+  margin-top: 0.25rem;
+  /* Prevent text overflow */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  width: 100%; 
 }
 
-.symbolOption .symbolImage {
-  width: 40px;
-  height: 40px;
-  margin-right: 0;
-}
-
-.buttonGroup {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.cancelButton {
-  padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-  background-color: white;
-  color: #333;
-  font-size: 0.9rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  /* Removed transition */
-}
-
-.cancelButton:hover {
-  background-color: #f0f0f0;
-}
-
-.saveButton {
-  padding: 0.75rem 1rem;
-  border: none;
-  background-color: #4a90e2;
-  color: white;
-  font-size: 0.9rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  /* Removed transition */
-}
-
-.saveButton:hover {
-  background-color: #357abd;
-}
+/* Remove styles for .chooseSymbolButton and old .availableSymbols, .symbolOption */
 
 .error {
+  color: #d9534f;
   padding: 0.75rem;
   background-color: #ffebee;
-  color: #d32f2f;
   border-radius: 0.5rem;
   margin-top: 1rem;
   font-size: 0.9rem;
-}
-
-.chooseSymbolButton {
-  display: block;
-  width: 100%;
-  max-width: 250px;
-  margin: 1rem auto;
-  padding: 0.75rem 1.25rem;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  /* Removed transition */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.chooseSymbolButton:hover {
-  background-color: #357abd;
-}
-
-.chooseSymbolButton:active {
-  /* Removed transform property */
 }
 
 @media (max-width: 480px) {
@@ -300,4 +267,81 @@
     padding-right: 1rem;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
+}
+
+/* Styles for Insertion Point */
+.insertionPointContainer {
+  display: inline-flex; /* To sit alongside chips */
+  align-items: center;
+  justify-content: center;
+  width: 16px; /* Width of the clickable gap */
+  height: 70px; /* Match chip height */
+  cursor: pointer;
+  position: relative;
+  margin: 0 4px; /* Add space around the indicator */
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.insertionPointMarker {
+  width: 2px;
+  height: 50%; /* Make marker shorter than container */
+  background-color: transparent; /* Invisible by default */
+  transition: background-color 0.2s ease;
+}
+
+.insertionPointContainer:hover .insertionPointMarker {
+  background-color: #ccc; /* Show subtle marker on hover */
+}
+
+.insertionPointActive .insertionPointMarker {
+  background-color: #4a90e2; /* Blue color for active marker */
+  /* Optional: Add blinking animation */
+  animation: blink 1s infinite;
+}
+
+/* Blinking animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding: 1rem 1.5rem;
+  margin: 0 -1.5rem -1.5rem -1.5rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
+.cancelButton, .saveButton {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.cancelButton {
+  border: 1px solid #ddd;
+  background-color: white;
+  color: #333;
+}
+
+.cancelButton:hover {
+  background-color: #f0f0f0;
+}
+
+.saveButton {
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+}
+
+.saveButton:hover {
+  background-color: #357abd;
 }

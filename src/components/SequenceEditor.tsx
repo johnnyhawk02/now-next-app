@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sequence } from '../data/sequences';
 import { SYMBOLS, getSymbolById } from '../data/symbols';
 import styles from './SequenceEditor.module.css';
@@ -25,6 +25,11 @@ const SequenceEditor: React.FC<SequenceEditorProps> = ({
   const [isSymbolPopupOpen, setIsSymbolPopupOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | 'Favorites'>('Favorites');
   const [favoriteSymbols, setFavoriteSymbols] = useState<string[]>([]);
+  const [insertionIndex, setInsertionIndex] = useState(initialSequence?.symbolIds.length || 0);
+
+  useEffect(() => {
+    setInsertionIndex(initialSequence?.symbolIds.length || selectedSymbols.length);
+  }, [initialSequence, selectedSymbols.length]);
 
   // Generate a unique ID for new sequences
   const generateUniqueId = () => {
@@ -71,20 +76,37 @@ const SequenceEditor: React.FC<SequenceEditorProps> = ({
   };
 
   const addSymbol = (symbolId: string) => {
-    setSelectedSymbols(prev => [...prev, symbolId]);
+    setSelectedSymbols(prev => {
+      const updated = [...prev];
+      updated.splice(insertionIndex, 0, symbolId);
+      setInsertionIndex(updated.length);
+      return updated;
+    });
   };
 
   const removeSymbol = (index: number) => {
-    setSelectedSymbols(prev => prev.filter((_, i) => i !== index));
+    setSelectedSymbols(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      setInsertionIndex(updated.length);
+      return updated;
+    });
   };
 
-  const moveSymbol = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= selectedSymbols.length) return;
-    
+  // Updated moveSymbol to handle left/right shifts
+  const moveSymbol = (index: number, direction: 'left' | 'right') => {
+    const newIndex = direction === 'left' ? index - 1 : index + 1;
+
+    // Basic bounds check
+    if (newIndex < 0 || newIndex >= selectedSymbols.length) {
+      return; 
+    }
+
     setSelectedSymbols(prev => {
       const updated = [...prev];
-      const [removed] = updated.splice(fromIndex, 1);
-      updated.splice(toIndex, 0, removed);
+      const temp = updated[index];
+      updated[index] = updated[newIndex];
+      updated[newIndex] = temp;
+      setInsertionIndex(updated.length);
       return updated;
     });
   };
@@ -150,80 +172,92 @@ const SequenceEditor: React.FC<SequenceEditorProps> = ({
         </div>
 
         <div className={styles.symbolsContainer}>
-          <h3 className={styles.subtitle}>Selected Symbols:</h3>
-          
+          <h3 className={styles.subtitle}>Selected Sequence:</h3>
+
           {selectedSymbols.length === 0 ? (
             <p className={styles.emptyMessage}>No symbols added yet. Add symbols from below.</p>
           ) : (
-            <div className={styles.selectedSymbols}>
+            <div className={styles.selectedSymbolsFlow}>
+              <div 
+                className={`${styles.insertionPointContainer} ${insertionIndex === 0 ? styles.insertionPointActive : ''}`}
+                onClick={() => setInsertionIndex(0)} 
+                title="Insert here"
+              >
+                <div className={styles.insertionPointMarker}></div>
+              </div>
+
               {selectedSymbols.map((symbolId, index) => {
                 const symbol = getSymbolById(symbolId);
                 if (!symbol) return null;
-                
+
                 return (
-                  <div key={`${symbolId}-${index}`} className={styles.selectedSymbol}>
-                    <img
-                      src={`/symbols/${symbol.filename}`}
-                      alt={symbol.displayName}
-                      className={styles.symbolImage}
-                    />
-                    <div className={styles.symbolControls}>
+                  <React.Fragment key={`${symbolId}-${index}`}>
+                    <div 
+                      className={styles.selectedSymbolChip} 
+                      onClick={() => setInsertionIndex(index + 1)}
+                      title={symbol.displayName}
+                    >
+                      <img
+                        src={`/symbols/${symbol.filename}`}
+                        alt={symbol.displayName}
+                        className={styles.symbolImageMedium}
+                      />
                       <button
-                        className={styles.symbolButton}
-                        onClick={() => moveSymbol(index, index - 1)}
-                        disabled={index === 0}
-                        aria-label="Move up"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        className={styles.symbolButton}
-                        onClick={() => moveSymbol(index, index + 1)}
-                        disabled={index === selectedSymbols.length - 1}
-                        aria-label="Move down"
-                      >
-                        ↓
-                      </button>
-                      <button
-                        className={styles.symbolButton}
-                        onClick={() => removeSymbol(index)}
-                        aria-label="Remove"
+                        className={styles.removeSymbolButton}
+                        onClick={(e) => { e.stopPropagation(); removeSymbol(index); }}
+                        aria-label={`Remove ${symbol.displayName}`}
+                        title={`Remove ${symbol.displayName}`}
                       >
                         ✕
                       </button>
+                      <button
+                        className={`${styles.moveButton} ${styles.moveLeftButton}`}
+                        onClick={(e) => { e.stopPropagation(); moveSymbol(index, 'left'); }}
+                        disabled={index === 0}
+                        aria-label="Move Left"
+                        title="Move Left"
+                      >
+                        ←
+                      </button>
+                      <button
+                        className={`${styles.moveButton} ${styles.moveRightButton}`}
+                        onClick={(e) => { e.stopPropagation(); moveSymbol(index, 'right'); }}
+                        disabled={index === selectedSymbols.length - 1}
+                        aria-label="Move Right"
+                        title="Move Right"
+                      >
+                        →
+                      </button>
                     </div>
-                    <span className={styles.symbolName}>{symbol.displayName}</span>
-                    <span className={styles.symbolIndex}>{index + 1}</span>
-                  </div>
+
+                    <div 
+                      className={`${styles.insertionPointContainer} ${insertionIndex === index + 1 ? styles.insertionPointActive : ''}`}
+                      onClick={() => setInsertionIndex(index + 1)} 
+                      title="Insert here"
+                    >
+                      <div className={styles.insertionPointMarker}></div>
+                    </div>
+                  </React.Fragment>
                 );
               })}
             </div>
           )}
-          
-          <button 
-            className={styles.chooseSymbolButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsSymbolPopupOpen(true);
-            }}
-          >
-            Choose Symbol
-          </button>
 
-          <h3 className={styles.subtitle}>Quick Add:</h3>
-          <div className={styles.availableSymbols}>
-            {SYMBOLS.slice(0, 12).map(symbol => (
+          <h3 className={styles.subtitle}>Add Symbols:</h3>
+          <div className={styles.availableSymbolsList}>
+            {SYMBOLS.slice(0, 20).map(symbol => (
               <div
                 key={symbol.id}
-                className={styles.symbolOption}
+                className={styles.symbolOptionItem}
                 onClick={() => addSymbol(symbol.id)}
+                title={`Add ${symbol.displayName}`}
               >
                 <img
                   src={`/symbols/${symbol.filename}`}
                   alt={symbol.displayName}
-                  className={styles.symbolImage}
+                  className={styles.symbolImageMedium}
                 />
-                <span className={styles.symbolName}>{symbol.displayName}</span>
+                <span className={styles.symbolNameSmall}>{symbol.displayName}</span>
               </div>
             ))}
           </div>
