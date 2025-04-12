@@ -22,6 +22,9 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const longPressTriggered = useRef(false);
 
   const handlePressStart = (_e: React.TouchEvent | React.MouseEvent) => {
+    // Prevent default actions like text selection or magnifier loop
+    _e.preventDefault();
+
     longPressTriggered.current = false;
     
     if (pressTimer.current) {
