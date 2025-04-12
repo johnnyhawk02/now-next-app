@@ -4,7 +4,7 @@ This document provides an overview of the Now-Next application structure, explai
 
 ## Main Application Files
 
-- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`, `autoAnnounce`) and renders the primary UI.
+- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`) and renders the primary UI.
 - **App.module.css**: Component-specific styles for the App component layout.
 - **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
 - **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
@@ -14,10 +14,9 @@ This document provides an overview of the Now-Next application structure, explai
 - **data/sequences.ts**: Data file containing the Sequence interface definition, predefined sequences, and helper functions for sequence management.
 - **components/AppBar.tsx**: Component for the top application bar, including title, edit mode toggle, and auto-announce toggle.
 - **components/AppBar.module.css**: Styles specific to the `AppBar` component.
-- **scripts/generateAudio.js**: Script for generating audio files for symbols using Google Cloud Text-to-Speech API.
 - **scripts/resizeSymbols.js**: Script for batch resizing of symbol images from 1024x1024 to 512x512.
 - **scripts/resizeSymbolsPng.js**: Script for selectively resizing only 1024x1024 PNG images while preserving originals.
-- **scripts/generate_audio.py**: Python script for generating audio files for symbols using the Coqui TTS library. It processes symbols in the `public/symbols` directory and saves audio files in the `public/audio` directory.
+- **scripts/generate_audio.py**: Python script for generating audio files for symbols using the Coqui TTS library. It processes symbols in the `public/symbols` directory and saves audio files in the `public/audio` directory. (Note: Not currently integrated as an npm script).
 
 ## Component Structure & Responsibilities
 
@@ -33,7 +32,6 @@ This document provides an overview of the Now-Next application structure, explai
   - `selectedSequenceId: string | null`: ID of the currently selected sequence.
   - `currentStepIndex: number`: Current position in the selected sequence.
   - `userCreatedSequences: boolean[]`: Tracks which sequences are user-created vs. default.
-  - `autoAnnounce: boolean`: Tracks whether the "Now" activity name should be automatically announced via speech synthesis.
 - **Renders:**
   - `AppBar`: The top application bar containing controls.
   - `ActivityCard` (x2): For "Now" and "Next".
@@ -43,7 +41,7 @@ This document provides an overview of the Now-Next application structure, explai
 - **Responsibilities:**
   - Manages the main state of the application.
   - Handles user interactions for selecting symbols.
-  - Passes state and callbacks to the `AppBar` for toggling edit mode and auto-announce.
+  - Passes state and callbacks to the `AppBar` for toggling edit mode.
   - Initializes default symbols if none are selected.
   - Persists favorite symbols to localStorage.
   - Filters and provides symbols based on selected category.
@@ -348,11 +346,8 @@ This document provides an overview of the Now-Next application structure, explai
    - Add entry in `src/data/symbols.ts`
 
 5. **Generate Audio for Symbols:**
-   - Audio files are automatically created when running:
-     ```bash
-     npm run generate-audio
-     ```
-   - The script uses Google Cloud Text-to-Speech API to create MP3 files for each symbol
+   - Audio files can be generated using the Python script: `python scripts/generate_audio.py`.
+   - This script uses the Coqui TTS library to create MP3 files for each symbol based on `displayName` and saves them to `public/audio/`. Ensure you have the necessary Python dependencies installed (`pip install TTS`).
 
 ## Key Features
 

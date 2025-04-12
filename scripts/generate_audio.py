@@ -1,5 +1,5 @@
 import os
-from TTS.api import TTS
+from gtts import gTTS
 
 def ensure_directory_exists(directory):
     """Ensure the given directory exists, creating it if necessary."""
@@ -9,9 +9,9 @@ def ensure_directory_exists(directory):
 def generate_audio(text, output_path):
     """Generate audio for the given text and save it to the specified output path."""
     try:
-        tts = TTS(model_name="tts_models/en/ljspeech/vits--neon")
         print(f"Generating audio for: {text}")
-        tts.tts_to_file(text=text, file_path=output_path)
+        tts = gTTS(text=text, lang='en', slow=False)
+        tts.save(output_path)
         print(f"Audio saved to: {output_path}")
     except Exception as e:
         print(f"Error generating audio for '{text}': {e}")
