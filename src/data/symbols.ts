@@ -1,216 +1,208 @@
 /**
- * Symbol categories and definitions for the Now & Next app
+ * Symbol tags and definitions for the Up Next app
  */
 
 export interface Symbol {
   id: string;
   filename: string;
   displayName: string;
-  categories: string[];
+  tags: string[];
 }
 
-// Define all available categories
-export const CATEGORIES = {
-  MORNING: 'Morning Routine',
-  MEALTIME: 'Mealtime',
-  BEDTIME: 'Bedtime',
-  ACTIVITIES: 'Activities',
-};
-
-// Define all symbols with their metadata
+// Define all symbols with their metadata using tags
 export const SYMBOLS: Symbol[] = [
-  // Morning Routine
+  // Morning Routine related
   {
     id: 'get-dressed',
     filename: 'get dressed.png',
     displayName: 'Get Dressed',
-    categories: [CATEGORIES.MORNING],
+    tags: ['morning', 'clothing'],
   },
   {
     id: 'get-dressed-school',
     filename: 'get dressed for school.png',
     displayName: 'Get Dressed for School',
-    categories: [CATEGORIES.MORNING],
+    tags: ['morning', 'clothing', 'school'],
   },
   {
     id: 'brush-teeth',
     filename: 'brush teeth girl.png',
     displayName: 'Brush Teeth',
-    categories: [CATEGORIES.MORNING, CATEGORIES.BEDTIME],
+    tags: ['morning', 'bedtime', 'hygiene'],
   },
   {
     id: 'brush-hair',
     filename: 'brush hair.png',
     displayName: 'Brush Hair',
-    categories: [CATEGORIES.MORNING],
+    tags: ['morning', 'hygiene'],
   },
   {
     id: 'toilet',
     filename: 'toilet.png',
     displayName: 'Toilet',
-    categories: [CATEGORIES.MORNING, CATEGORIES.MEALTIME, CATEGORIES.BEDTIME, CATEGORIES.ACTIVITIES],
+    tags: ['routine', 'hygiene'],
   },
   
-  // Mealtime
+  // Mealtime related
   {
     id: 'cheese-toast',
     filename: 'cheese on toast.png',
     displayName: 'Cheese on Toast',
-    categories: [CATEGORIES.MEALTIME],
+    tags: ['mealtime', 'food'],
   },
   {
     id: 'dinner-time',
     filename: 'dinner time.png',
     displayName: 'Dinner Time',
-    categories: [CATEGORIES.MEALTIME],
+    tags: ['mealtime', 'food'],
   },
   {
     id: 'dinner',
     filename: 'dinner.png',
     displayName: 'Dinner',
-    categories: [CATEGORIES.MEALTIME],
+    tags: ['mealtime', 'food'],
   },
   {
     id: 'bottle',
     filename: 'bottle.png',
     displayName: 'Bottle',
-    categories: [CATEGORIES.MORNING, CATEGORIES.MEALTIME, CATEGORIES.BEDTIME, CATEGORIES.ACTIVITIES],
+    tags: ['mealtime', 'drink'],
   },
   
-  // Bedtime
+  // Bedtime related
   {
     id: 'bath',
     filename: 'bath.png',
     displayName: 'Bath',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'hygiene'],
   },
   {
     id: 'pyjamas',
     filename: 'pyjamas.png',
     displayName: 'Pyjamas',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'clothing'],
   },
   {
     id: 'bedtime-song',
     filename: 'bedtime song.png',
     displayName: 'Bedtime Song',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'music'],
   },
   {
     id: 'bedtime-song-bunk',
     filename: 'bedtime song bunk beds.png',
     displayName: 'Bedtime Song (Bunk Beds)',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'music'],
   },
   {
     id: 'bunk-beds',
     filename: 'bunk beds.png',
     displayName: 'Bunk Beds',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'sleep'],
   },
   {
     id: 'sleep',
     filename: 'sleep.png',
     displayName: 'Sleep',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'sleep'],
   },
   {
     id: 'sleep-bunk-beds',
     filename: 'sleep in bunk beds.png',
     displayName: 'Sleep in Bunk Beds',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'sleep'],
   },
   {
     id: 'dream-machine',
     filename: 'dream machine.png',
     displayName: 'Dream Machine',
-    categories: [CATEGORIES.BEDTIME],
+    tags: ['bedtime', 'sleep', 'sensory'],
   },
   
-  // Activities
+  // Activities related
   {
     id: 'car',
     filename: 'car.png',
     displayName: 'Car',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'transport'],
   },
   {
     id: 'train',
     filename: 'train.png',
     displayName: 'Train',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'transport'],
   },
   {
     id: 'pushchair',
     filename: 'pushchair.png',
     displayName: 'Pushchair',
-    categories: [CATEGORIES.ACTIVITIES, CATEGORIES.MORNING],
+    tags: ['activity', 'transport', 'outside'],
   },
   {
     id: 'ipad',
     filename: 'ipad.png',
     displayName: 'iPad',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'play', 'screentime'],
   },
   {
     id: 'playground',
     filename: 'playground.png',
     displayName: 'playground',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'play', 'outside'],
   },
   {
     id: 'ice-lolly',
     filename: 'ice lolly.png',
     displayName: 'Ice Lolly',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'food', 'treat'],
   },
   {
     id: 'easter-egg',
     filename: 'easter egg.png',
     displayName: 'Easter Egg',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'food', 'treat', 'holiday'],
   },
   {
     id: 'entertainment',
     filename: 'entertainment.png',
     displayName: 'Entertainment',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'play', 'screentime'],
   },
   {
     id: 'cottage',
     filename: 'cottage.png',
     displayName: 'Cottage',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'place', 'holiday'],
   },
   {
     id: 'chloe',
     filename: 'Chloe.png',
     displayName: 'Chloe',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['person', 'family'],
   },
   {
     id: 'mcdonalds',
     filename: 'McDonalds.png',
     displayName: 'McDonald\'s',
-    categories: [CATEGORIES.ACTIVITIES, CATEGORIES.MEALTIME],
+    tags: ['activity', 'mealtime', 'food', 'treat'],
   },
   {
     id: 'finished',
     filename: 'finished.png',
     displayName: 'Finished',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['general', 'routine'],
   },
   {
     id: 'blackpool',
     filename: 'blackpool.png',
     displayName: 'Blackpool',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['activity', 'place', 'holiday'],
   },
   {
     id: 'izzi',
     filename: 'izzi.png',
     displayName: 'Izzi',
-    categories: [CATEGORIES.ACTIVITIES],
+    tags: ['person', 'family'],
   },
 
 ];
@@ -224,12 +216,18 @@ export const getSymbolById = (id: string): Symbol | undefined => {
   return SYMBOLS.find(symbol => symbol.id === id);
 };
 
-export const getSymbolsByCategory = (category: string): Symbol[] => {
-  return SYMBOLS.filter(symbol => symbol.categories.includes(category));
+// Renamed and updated to filter by tag
+export const getSymbolsByTag = (tag: string): Symbol[] => {
+  return SYMBOLS.filter(symbol => symbol.tags.includes(tag));
 };
 
-export const getAllCategories = (): string[] => {
-  return Object.values(CATEGORIES);
+// Renamed and updated to get all unique tags
+export const getAllTags = (): string[] => {
+  const allTags = new Set<string>();
+  SYMBOLS.forEach(symbol => {
+    symbol.tags.forEach(tag => allTags.add(tag));
+  });
+  return Array.from(allTags).sort();
 };
 
 export const getAllFilenames = (): string[] => {

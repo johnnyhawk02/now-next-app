@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { getSymbolByFilename } from '../data/symbols';
 import { playAudioForWord } from '../utils/speech';
 import styles from './ActivityCard.module.css';
@@ -7,51 +7,101 @@ interface ActivityCardProps {
   title: string;
   symbolFilename: string | null;
   onClick?: () => void;
-  isEditMode?: boolean;
-  onRemove?: () => void; // New prop for handling removal
+  isEditMode: boolean;
+  onEditModeToggle: () => void;
+  onRemove?: () => void;
 }
+
+const LONG_PRESS_DURATION = 500;
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   title,
   symbolFilename,
   onClick,
   isEditMode,
+  onEditModeToggle,
   onRemove,
 }) => {
-  const handleCardClick = () => {
-    if (isEditMode && onClick) {
-      onClick();
-    } else if (symbolFilename) {
-      // In non-edit mode, play the audio for this symbol
-      const symbol = getSymbolByFilename(symbolFilename);
-      const audioName = symbol?.displayName || symbolFilename.split('.')[0].replace(/([A-Z])/g, ' $1').trim().toLowerCase();
-      
-      // Use our audio player utility
-      playAudioForWord(audioName);
+  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const handlePressStart = (e: React.TouchEvent | React.MouseEvent) => {
+    longPressTriggered.current = false;
+    
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+    }
+
+    pressTimer.current = setTimeout(() => {
+      longPressTriggered.current = true;
+      console.log('Long press threshold met');
+    }, LONG_PRESS_DURATION);
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+
+    if (longPressTriggered.current) {
+      console.log('Long press detected on release -> toggling edit mode');
+      onEditModeToggle();
+    } else {
+      if (isEditMode && onClick) {
+        console.log('Short press in Edit mode -> opening popup');
+        onClick();
+      } else if (!isEditMode && symbolFilename) {
+        console.log('Short press in View mode -> playing audio');
+        const symbol = getSymbolByFilename(symbolFilename);
+        const audioName = symbol?.displayName || symbolFilename.split('.')[0].replace(/([A-Z])/g, ' $1').trim().toLowerCase();
+        playAudioForWord(audioName);
+      }
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (pressTimer.current) {
+        clearTimeout(pressTimer.current);
+      }
+    };
+  }, []);
+
+  const cardStyle: React.CSSProperties = {
+    cursor: 'pointer',
+    width: '100%',
+    maxWidth: '100%',
+    border: isEditMode ? '3px dashed blue' : 'none',
+    padding: isEditMode ? 'calc(1rem - 3px)' : '1rem',
+    boxSizing: 'border-box'
+  };
+
   return (
-    <div className={styles.container}>
-      {isEditMode && symbolFilename !== 'finished.png' && (
+    <div 
+      className={styles.container} 
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {isEditMode && onRemove && symbolFilename !== 'finished.png' && (
         <button
-          className={styles.removeButton} // Add styling for the remove button
+          className={styles.removeButton}
           onClick={(e) => {
-            e.stopPropagation(); // Prevent triggering the card click
+            e.stopPropagation();
             if (onRemove) onRemove();
           }}
+          aria-label={`Remove ${title}`}
         >
-          X
+          ✕
         </button>
       )}
       <div
         className={styles.card}
-        onClick={handleCardClick}
-        style={{ 
-          cursor: 'pointer',
-          width: '100%', 
-          maxWidth: '100%' 
-        }}
+        style={cardStyle}
       >
         {symbolFilename ? (
           <img
@@ -61,7 +111,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             style={{ 
               width: '100%', 
               maxWidth: '100%', 
-              objectFit: 'contain' 
+              objectFit: 'contain',
+              pointerEvents: 'none'
             }}
           />
         ) : (

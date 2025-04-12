@@ -4,15 +4,14 @@ import styles from './SymbolSelectionPopup.module.css';
 
 interface SymbolSelectionPopupProps {
   isOpen: boolean;
-  popupType: 'next' | 'sequence' | null;
+  popupType: 'next' | null;
   title?: string;
   onClose: () => void;
   onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void;
   availableSymbols: string[];
-  sequenceLength?: number;
-  categories?: string[];
-  activeCategory?: string | 'Favorites';
-  setActiveCategory?: (category: string | 'Favorites') => void;
+  tags?: string[];
+  activeTag?: string | 'Favorites' | 'All';
+  setActiveTag?: (tag: string | 'Favorites' | 'All') => void;
   favoriteSymbols?: string[];
   toggleFavorite?: (symbolName: string) => void;
 }
@@ -23,63 +22,54 @@ const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
   onClose,
   onSelectSymbol,
   availableSymbols,
-  sequenceLength = 0,
-  categories = [],
-  activeCategory = 'Favorites',
-  setActiveCategory,
+  tags = [],
+  activeTag = 'All',
+  setActiveTag,
   favoriteSymbols = [],
   toggleFavorite
 }) => {
   if (!isOpen) return null;
   
-  // Determine the title based on popupType
-  let dynamicTitle = 'Select Symbol'; // Default title
-  if (popupType === 'next') {
-      dynamicTitle = 'Select Next Symbol';
-  } else if (popupType === 'sequence') {
-      dynamicTitle = 'Add Symbol to Sequence'; // Updated title for sequence mode
-  }
+  const dynamicTitle = 'Select Symbol';
 
   return (
     <div className={styles.popupOverlay} onClick={onClose}>
       <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
-        {/* Fixed header with title and category tabs */}
         <div className={styles.headerContent}>
           <div className={styles.headerTop}>
             <h2 className={styles.popupTitle}>
-              {dynamicTitle} {/* Use dynamic title */} 
-              {popupType === 'sequence' && (
-                <div className={styles.sequenceInfo}>
-                  Selected: {sequenceLength} symbols
-                </div>
-              )}
+              {dynamicTitle}
             </h2>
             <button className={styles.closeX} onClick={onClose}>✕</button>
           </div>
           
-          {/* Categories tabs */}
-          {categories.length > 0 && (
-            <div className={styles.categoryTabs}>
+          {tags.length > 0 && (
+            <div className={styles.tagTabs}>
               <button 
-                className={`${styles.categoryTab} ${activeCategory === 'Favorites' ? styles.activeTab : ''}`}
-                onClick={() => setActiveCategory && setActiveCategory('Favorites')}
+                className={`${styles.tagTab} ${activeTag === 'All' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTag && setActiveTag('All')}
+              >
+                All
+              </button>
+              <button 
+                className={`${styles.tagTab} ${activeTag === 'Favorites' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTag && setActiveTag('Favorites')}
               >
                 ⭐ Favorites
               </button>
-              {categories.map(category => (
+              {tags.filter(tag => tag !== 'All' && tag !== 'Favorites').map(tag => (
                 <button 
-                  key={category}
-                  className={`${styles.categoryTab} ${activeCategory === category ? styles.activeTab : ''}`}
-                  onClick={() => setActiveCategory && setActiveCategory(category)}
+                  key={tag}
+                  className={`${styles.tagTab} ${activeTag === tag ? styles.activeTab : ''}`}
+                  onClick={() => setActiveTag && setActiveTag(tag)}
                 >
-                  {category}
+                  {tag}
                 </button>
               ))}
             </div>
           )}
         </div>
         
-        {/* Scrollable content */}
         <div className={styles.scrollContent}>
           <div className={styles.symbolGrid}>
             {availableSymbols.map((symbolName) => (
@@ -92,7 +82,6 @@ const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
               />
             ))}
           </div>
-          {/* Removed bottom close button as it's now hidden via CSS and replaced with the X button */}
         </div>
       </div>
     </div>

@@ -77,9 +77,6 @@
   background-color: #e0e0e0;
 }
 
-.closeX:active {
-}
-
 .closeButton {
   display: none;
 }
@@ -108,15 +105,7 @@
   grid-auto-flow: row dense; /* Ensure dense packing */
 }
 
-.sequenceInfo {
-  font-size: 0.9rem;
-  background: #f0f0f0;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
-  border-radius: 4px;
-}
-
-.categoryTabs {
+.tagTabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -124,7 +113,7 @@
   justify-content: center;
 }
 
-.categoryTab {
+.tagTab {
   padding: 0.5rem 0.75rem;
   background-color: #f5f5f5;
   border: 1px solid #e0e0e0;
@@ -134,7 +123,7 @@
   color: #555;
 }
 
-.categoryTab:hover {
+.tagTab:hover {
   background-color: #e8e8e8;
 }
 
