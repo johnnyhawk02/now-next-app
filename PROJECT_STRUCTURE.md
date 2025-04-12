@@ -1,12 +1,14 @@
-# Up Next App Project Structure (Simplified: Tags)
+# Up Next App Project Structure (Simplified: Tags + Direct Interaction)
 
 *(Last Updated: YYYY-MM-DD)* // TODO: Update this date
 
-This document provides an overview of the **simplified** Up Next application structure, explaining the purpose of each file and how components interact. This version **removes sequences** and uses a **tag-based system** for organizing symbols. **Edit mode is triggered by long-pressing the main symbol.**
+This document provides an overview of the **ultra-simplified** Up Next application structure. This version **removes sequences and edit mode**, uses a **tag-based system** for symbols, and features direct interaction:
+- **Short Press** on symbol: Plays audio.
+- **Long Press** on symbol: Opens symbol selection popup.
 
 ## Main Application Files
 
-- **App.tsx**: Manages state (`currentSymbol`, `isPopupOpen`, `isEditMode`, `favoriteSymbols`, `activeTag`) and renders UI. Handles edit mode toggling.
+- **App.tsx**: Manages state (`currentSymbol`, `isPopupOpen`, `favoriteSymbols`, `activeTag`) and renders UI. Handles opening the symbol popup.
 - **App.module.css**: Component-specific styles for the App component layout.
 - **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
 - **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
@@ -24,48 +26,43 @@ This document provides an overview of the **simplified** Up Next application str
 
 ### App.tsx
 - **State Managed:**
-  - `currentSymbol: string | null`: Filename of the symbol for the currently displayed activity.
-  - `isPopupOpen: 'next' | null`: Controls if the symbol selection popup is open.
-  - `isEditMode: boolean`: Tracks whether the app is in edit mode or view mode.
-  - `favoriteSymbols: string[]`: Array of filenames for favorited symbols, persisted in localStorage.
-  - `activeTag: string | 'Favorites' | 'All'>`: Currently selected tag for filtering symbols in the popup.
+  - `currentSymbol: string | null`: Filename of the symbol.
+  - `isPopupOpen: 'next' | null`: Controls symbol selection popup visibility.
+  - `favoriteSymbols: string[]`: Favorited symbols (localStorage).
+  - `activeTag: string | 'Favorites' | 'All'>`: Selected tag filter.
 - **Renders:**
-  - `AppBar`: The top application bar (title only).
-  - `ActivityCard` (x1): For the `currentSymbol`.
-  - `SymbolSelectionPopup`: The popup for choosing the `currentSymbol`, filterable by tags.
+  - `AppBar`: Title bar.
+  - `ActivityCard`: Displays current symbol, handles press interactions.
+  - `SymbolSelectionPopup`: Popup for choosing symbol, filterable by tags.
 - **Responsibilities:**
-  - Manages the main application state (`currentSymbol`, `isPopupOpen`, `isEditMode`, `favoriteSymbols`, `activeTag`).
-  - Handles user interactions from child components (symbol selection, **edit mode toggle via long press on ActivityCard**).
-  - Passes state and callbacks to `AppBar`, `ActivityCard`, `SymbolSelectionPopup`.
-  - Initializes a default `currentSymbol`.
-  - Persists `favoriteSymbols` to `localStorage`.
-  - Filters symbols for `SymbolSelectionPopup` based on `activeTag` using `getDisplaySymbols()`.
-  - Preloads audio files for symbols.
+  - Manages core application state.
+  - Handles opening the symbol popup (`handleChangeSymbol`) triggered by `ActivityCard`.
+  - Handles symbol selection from `SymbolSelectionPopup`.
+  - Passes state/callbacks to child components.
+  - Initializes default symbol.
+  - Persists/loads `favoriteSymbols` to/from `localStorage`.
+  - Filters symbols for popup based on `activeTag`.
+  - Preloads audio.
 
 ### AppBar Component
 - **Files:** `components/AppBar.tsx`, `components/AppBar.module.css`
-- **Purpose:** Displays the top application bar with the title.
-- **Props (Inputs):**
-  - `title: string`: The title to display.
-- **Responsibilities:**
-  - Displays the application title.
+- **Purpose:** Displays the application title.
+- **Props:** `title: string`.
+- **Responsibilities:** Displays title.
 
 ### ActivityCard Component
 - **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
-- **Purpose:** Displays the current activity card and handles interactions (short press/long press).
+- **Purpose:** Displays current symbol, handles short/long press.
 - **Props (Inputs):**
-  - `title: string`: Display name of the symbol.
+  - `title: string`: Symbol display name.
   - `symbolFilename: string | null`: Symbol filename.
-  - `onClick?: () => void`: Callback for **short press in edit mode** (opens symbol popup).
-  - `isEditMode: boolean`: Current edit mode state.
-  - `onEditModeToggle: () => void`: Callback to toggle edit mode in parent (**triggered by long press**).
+  - `onChangeSymbol: () => void`: Callback to open symbol popup (**triggered by long press**).
 - **Responsibilities:**
   - Displays symbol image and title.
   - **Detects short vs. long press (touch/mouse):**
-    - **Short Press:** Plays audio (view mode) or calls `onClick` prop (edit mode).
-    - **Long Press:** Calls `onEditModeToggle` prop.
-  - Shows placeholder text if no symbol selected.
-  - Provides visual feedback when in edit mode (e.g., dashed border).
+    - **Short Press:** Plays audio via `utils/speech.ts`.
+    - **Long Press:** Calls `onChangeSymbol` prop.
+  - Shows placeholder text.
 
 ### SymbolButton Component
 - **Files:** `components/SymbolButton.tsx`, `components/SymbolButton.module.css`
@@ -83,7 +80,7 @@ This document provides an overview of the **simplified** Up Next application str
 
 ### SymbolSelectionPopup Component
 - **Files:** `components/SymbolSelectionPopup.tsx`, `components/SymbolSelectionPopup.module.css`
-- **Purpose:** A modal popup for selecting the `currentSymbol`, displayed in full screen.
+- **Purpose:** Modal popup for selecting `currentSymbol`.
 - **Props (Inputs):**
   - `isOpen: boolean`: Controls if the popup is visible.
   - `popupType: 'next' | null`: Determines the title ("Select Symbol").
@@ -128,29 +125,25 @@ This document provides an overview of the **simplified** Up Next application str
 ## State Flow
 
 1. **Initialization:**
-   - `App.tsx` initializes state variables (`currentSymbol`, `isPopupOpen`, etc.).
+   - `App.tsx` initializes state (`currentSymbol`, `isPopupOpen`, etc.).
    - Reads `favoriteSymbols` from `localStorage`.
    - Sets default `currentSymbol`.
 
 2. **User Interaction -> State Change -> UI Update:**
-   - **Example: Toggling Edit Mode**
+   - **Example: Changing Symbol**
      - User **long presses** `ActivityCard`.
-     - `ActivityCard` detects long press and calls `onEditModeToggle` prop.
-     - `App.tsx` (`handleEditModeToggle`) updates `isEditMode` state. → `ActivityCard` gets new `isEditMode` prop and updates its visual style.
-   - **Example: Changing Current Symbol (Edit Mode)**
-     - User **short presses** `ActivityCard` (while `isEditMode` is true).
-     - `ActivityCard` detects short press, calls `onClick` prop.
-     - `App.tsx` (`openPopup`) sets `isPopupOpen` state to `'next'`. → `SymbolSelectionPopup` visible.
-     - User clicks a tag tab (e.g., 'food') in `SymbolSelectionPopup`.
+     - `ActivityCard` detects long press, calls `onChangeSymbol` prop.
+     - `App.tsx` (`handleChangeSymbol`) sets `isPopupOpen` state to `'next'`. → `SymbolSelectionPopup` visible.
+     - User clicks a tag tab (e.g., 'food').
      - `SymbolSelectionPopup` calls `setActiveTag` prop.
-     - `App.tsx` updates `activeTag` state. → `SymbolSelectionPopup` filters displayed symbols via `getDisplaySymbols()`.
+     - `App.tsx` updates `activeTag` state. → `SymbolSelectionPopup` filters symbols.
      - User clicks a `SymbolButton`.
-     - `SymbolButton` calls `onClick` prop (`SymbolSelectionPopup`).
+     - `SymbolButton` calls `onClick` (`SymbolSelectionPopup`).
      - `SymbolSelectionPopup` calls `onSelectSymbol` prop.
      - `App.tsx` updates `currentSymbol` state and sets `isPopupOpen` to `null`. → `ActivityCard` updates, `SymbolSelectionPopup` hides.
-   - **Example: Playing Audio (View Mode)**
-     - User **short presses** `ActivityCard` (while `isEditMode` is false).
-     - `ActivityCard` detects short press, calls `playAudioForWord`.
+   - **Example: Playing Audio**
+     - User **short presses** `ActivityCard`.
+     - `ActivityCard` detects short press, calls `playAudioForWord` from `utils/speech.ts`.
      - `speech.ts` plays audio.
    - **Example: Toggling Favorite**
      - User clicks star icon on `SymbolButton`.
@@ -159,16 +152,10 @@ This document provides an overview of the **simplified** Up Next application str
      - `App.tsx` updates `favoriteSymbols` state and writes to `localStorage`. → Star icon toggles.
 
 4. **Data Flow:**
-   - Symbol data flows from `symbols.ts` → `App.tsx` → `SymbolSelectionPopup` → `SymbolButton` / `ActivityCard`.
-   - User interactions flow in reverse: `SymbolButton` → `SymbolSelectionPopup` → `App.tsx`, **`ActivityCard` (short/long press) → `App.tsx` or `speech.ts`.**
-   - Favorites are stored in `App.tsx` state and persisted to localStorage.
-   - Tag filtering happens at the App level (`getDisplaySymbols()`) based on `activeTag`.
-   - Audio paths derived from `symbol.displayName`.
-
-5. **Edit Mode Flow:**
-   - **Long press** on `ActivityCard` toggles `isEditMode` state in `App.tsx`.
-   - Enabled: **Short press** on `ActivityCard` opens symbol selection popup.
-   - Disabled: **Short press** on `ActivityCard` plays audio.
+   - Symbol data: `symbols.ts` → `App.tsx` → `SymbolSelectionPopup` → `SymbolButton` / `ActivityCard`.
+   - User interactions: `SymbolButton` → `SymbolSelectionPopup` → `App.tsx`, **`ActivityCard` (short/long press) → `App.tsx` (popup) or `speech.ts` (audio).**
+   - Favorites stored in `localStorage` via `App.tsx` state.
+   - Tag filtering in `App.tsx`.
 
 ## Symbol Management
 
@@ -189,8 +176,9 @@ This document provides an overview of the **simplified** Up Next application str
 - **Tag Filtering:** Tab navigation for filtering symbols by tag (All, Favorites, others).
 - **Favorites System:** Star icons for quick access.
 - **Symbol Grid Layout:** Responsive symbol grid.
-- **Edit Mode Toggle:** Triggered via **long press** on the main symbol card.
-- **Visual Edit Mode Indicator:** Card style changes (e.g., border) when in edit mode.
+- **Interaction Model:**
+  - **Short Press:** Play audio.
+  - **Long Press:** Open symbol selection.
 
 ## Styling Architecture
 
@@ -277,13 +265,11 @@ This document provides an overview of the **simplified** Up Next application str
 
 ## Key Features
 
-1. **Activity Display:** Set and display the current activity symbol.
-2. **Symbol Selection:** Choose from symbols, filterable by tags and favorites.
-3. **Tag-Based Organization:** Symbols organized using flexible tags.
-4. **Responsive Design:** Optimized for desktop/mobile.
-5. **PWA:** Installable native-like experience.
-6. **Edit Mode Toggle:** Switch between view/edit mode via **long press** on the symbol.
-7. **On-Demand Audio:** Plays pronunciation for displayed symbol.
+1. **Activity Display:** Shows current activity symbol.
+2. **Symbol Selection:** Long press symbol to open popup; filter by tags/favorites.
+3. **Tag-Based Organization:** Flexible symbol tagging.
+4. **Audio Playback:** Short press symbol to hear pronunciation.
+5. **Responsive Design & PWA:** Optimized for desktop/mobile.
 
 ## Future Enhancements
 

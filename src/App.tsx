@@ -21,7 +21,6 @@ const formatDisplayNameForAudio = (displayName: string): string => {
 };
 
 const App = () => {
-  const [isEditMode, setIsEditMode] = useState(false);
   const [currentSymbol, setCurrentSymbol] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState<'next' | null>(null);
   const [favoriteSymbols, setFavoriteSymbols] = useState<string[]>([]);
@@ -29,17 +28,12 @@ const App = () => {
   
   const handleSelectSymbol = (e: React.MouseEvent, symbolName: string) => {
     e.stopPropagation();
-
-    if (isPopupOpen === 'next') {
-      setCurrentSymbol(symbolName);
-      setIsPopupOpen(null);
-    }
+    setCurrentSymbol(symbolName);
+    setIsPopupOpen(null);
   };
 
-  const openPopup = (type: 'next') => {
-    if (isEditMode) {
-        setIsPopupOpen(type);
-    }
+  const handleChangeSymbol = () => {
+    setIsPopupOpen('next');
   };
 
   const toggleFavorite = (symbolName: string) => {
@@ -48,10 +42,6 @@ const App = () => {
         ? prevFavorites.filter(name => name !== symbolName)
         : [...prevFavorites, symbolName]
     );
-  };
-
-  const handleEditModeToggle = () => {
-    setIsEditMode(!isEditMode);
   };
 
   const getDisplaySymbols = (): string[] => {
@@ -128,9 +118,7 @@ const App = () => {
           <ActivityCard
             title={cardTitle}
             symbolFilename={currentSymbol}
-            onClick={() => openPopup('next')}
-            isEditMode={isEditMode}
-            onEditModeToggle={handleEditModeToggle}
+            onChangeSymbol={handleChangeSymbol}
           />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { getSymbolByFilename } from '../data/symbols';
 import { playAudioForWord } from '../utils/speech';
 import styles from './ActivityCard.module.css';
@@ -6,9 +6,7 @@ import styles from './ActivityCard.module.css';
 interface ActivityCardProps {
   title: string;
   symbolFilename: string | null;
-  onClick?: () => void;
-  isEditMode: boolean;
-  onEditModeToggle: () => void;
+  onChangeSymbol: () => void;
   onRemove?: () => void;
 }
 
@@ -17,15 +15,13 @@ const LONG_PRESS_DURATION = 500;
 const ActivityCard: React.FC<ActivityCardProps> = ({
   title,
   symbolFilename,
-  onClick,
-  isEditMode,
-  onEditModeToggle,
+  onChangeSymbol,
   onRemove,
 }) => {
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const longPressTriggered = useRef(false);
 
-  const handlePressStart = (e: React.TouchEvent | React.MouseEvent) => {
+  const handlePressStart = (_e: React.TouchEvent | React.MouseEvent) => {
     longPressTriggered.current = false;
     
     if (pressTimer.current) {
@@ -45,14 +41,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     }
 
     if (longPressTriggered.current) {
-      console.log('Long press detected on release -> toggling edit mode');
-      onEditModeToggle();
+      console.log('Long press detected -> opening popup');
+      onChangeSymbol();
     } else {
-      if (isEditMode && onClick) {
-        console.log('Short press in Edit mode -> opening popup');
-        onClick();
-      } else if (!isEditMode && symbolFilename) {
-        console.log('Short press in View mode -> playing audio');
+      if (symbolFilename) {
+        console.log('Short press -> playing audio');
         const symbol = getSymbolByFilename(symbolFilename);
         const audioName = symbol?.displayName || symbolFilename.split('.')[0].replace(/([A-Z])/g, ' $1').trim().toLowerCase();
         playAudioForWord(audioName);
@@ -72,8 +65,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     cursor: 'pointer',
     width: '100%',
     maxWidth: '100%',
-    border: isEditMode ? '3px dashed blue' : 'none',
-    padding: isEditMode ? 'calc(1rem - 3px)' : '1rem',
+    padding: '1rem',
     boxSizing: 'border-box'
   };
 
@@ -87,7 +79,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       onMouseLeave={handlePressEnd}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {isEditMode && onRemove && symbolFilename !== 'finished.png' && (
+      {onRemove && symbolFilename !== 'finished.png' && (
         <button
           className={styles.removeButton}
           onClick={(e) => {

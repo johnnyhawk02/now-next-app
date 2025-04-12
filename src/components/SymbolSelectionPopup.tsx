@@ -18,7 +18,6 @@ interface SymbolSelectionPopupProps {
 
 const SymbolSelectionPopup: React.FC<SymbolSelectionPopupProps> = ({
   isOpen,
-  popupType,
   onClose,
   onSelectSymbol,
   availableSymbols,
