@@ -30,7 +30,7 @@ This document provides an overview of the Next Up application structure, explain
   - `isEditMode: boolean`: Tracks whether the app is in edit mode or view mode.
   - `favoriteSymbols: string[]`: Array of filenames for favorited symbols, persisted in localStorage.
   - `activeCategory: string | 'Favorites'`: Currently selected category in the symbol selection popup.
-  - `sequences: Sequence[]`: Array of available activity sequences.
+  - `userSequences: Sequence[]`: Array of user-created sequences, persisted in localStorage.
   - `selectedSequenceId: string | null`: ID of the currently selected sequence.
   - `currentStepIndex: number`: Current position in the selected sequence.
   - `userCreatedSequences: boolean[]`: Tracks which sequences are user-created vs. default.

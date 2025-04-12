@@ -36,7 +36,6 @@ const App = () => {
   
   // Sequence state
   const [userSequences, setUserSequences] = useState<Sequence[]>([]);
-  const [userCreatedSequences, setUserCreatedSequences] = useState<boolean[]>([]);
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
   
@@ -84,7 +83,8 @@ const App = () => {
       return;
     }
     
-    const sequence = SEQUENCES.find(seq => seq.id === sequenceId);
+    // Use combinedSequences to find the sequence (default or user)
+    const sequence = combinedSequences.find(seq => seq.id === sequenceId);
     if (sequence && sequence.symbolIds.length > 0) {
       setSelectedSequenceId(sequenceId);
       setCurrentStepIndex(-1);
@@ -116,8 +116,8 @@ const App = () => {
   const handleNextStep = () => {
     if (!selectedSequenceId) return;
     
-    const allSequences = SEQUENCES;
-    const sequence = allSequences.find(seq => seq.id === selectedSequenceId);
+    // Use combinedSequences here as well
+    const sequence = combinedSequences.find(seq => seq.id === selectedSequenceId);
     if (!sequence || currentStepIndex >= sequence.symbolIds.length - 1) return;
     
     setCurrentStepIndex(prevIndex => {
@@ -128,7 +128,8 @@ const App = () => {
   };
   
   const updateSymbolForStep = (stepIndex: number) => {
-    const sequence = SEQUENCES.find(seq => seq.id === selectedSequenceId);
+    // And use combinedSequences here too
+    const sequence = combinedSequences.find(seq => seq.id === selectedSequenceId);
     if (sequence) {
       const nextStepSymbolIndex = stepIndex + 1;
       if (nextStepSymbolIndex >= 0 && nextStepSymbolIndex < sequence.symbolIds.length) {
@@ -194,12 +195,6 @@ const App = () => {
     const initialUserSequences = storedUserSequences ? JSON.parse(storedUserSequences) : [];
     setUserSequences(initialUserSequences);
 
-    // Recalculate userCreatedSequences based on initial load
-    setUserCreatedSequences([
-      ...Array(SEQUENCES.length).fill(false),
-      ...Array(initialUserSequences.length).fill(true)
-    ]);
-
     if (!currentSymbol && !selectedSequenceId) {
       setCurrentSymbol('get_dressed.png');
     }
@@ -211,15 +206,13 @@ const App = () => {
   
   useEffect(() => {
     localStorage.setItem('userSequences', JSON.stringify(userSequences));
-    
-    // Recalculate userCreatedSequences whenever userSequences changes
-    setUserCreatedSequences([
-        ...Array(SEQUENCES.length).fill(false),
-        ...Array(userSequences.length).fill(true)
-    ]);
   }, [userSequences]);
   
   const combinedSequences = [...SEQUENCES, ...userSequences];
+  const userCreatedSequences = [
+    ...Array(SEQUENCES.length).fill(false),
+    ...Array(userSequences.length).fill(true)
+  ];
 
   // Preload audio files
   useEffect(() => {
