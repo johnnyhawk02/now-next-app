@@ -1,12 +1,12 @@
-# Now-Next App Project Structure
+# Next Up App Project Structure
 
 *(Last Updated: 2024-08-02)*
 
-This document provides an overview of the Now-Next application structure, explaining the purpose of each file and how components interact with each other. It is tailored to assist AI in understanding the app's architecture and functionality.
+This document provides an overview of the Next Up application structure, explaining the purpose of each file and how components interact with each other. It is tailored to assist AI in understanding the app's architecture and functionality.
 
 ## Main Application Files
 
-- **App.tsx**: The main application component that manages the overall state (`nowSymbol`, `nextSymbol`, `isPopupOpen`, `isEditMode`) and renders the primary UI.
+- **App.tsx**: The main application component that manages the overall state (`currentSymbol`, `isPopupOpen`, `isEditMode`, sequences, etc.) and renders the primary UI.
 - **App.module.css**: Component-specific styles for the App component layout.
 - **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
 - **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
@@ -14,19 +14,19 @@ This document provides an overview of the Now-Next application structure, explai
 - **manifest.json**: PWA manifest file for home screen installation on mobile devices.
 - **data/symbols.ts**: Central data file containing all symbol definitions, categories, and utility functions for symbol management.
 - **data/sequences.ts**: Data file containing the Sequence interface definition, predefined sequences, and helper functions for sequence management.
-- **components/AppBar.tsx**: Component for the top application bar, including title, edit mode toggle, and auto-announce toggle.
+- **utils/speech.ts**: Utility for playing pre-generated audio files associated with symbols.
+- **components/AppBar.tsx**: Component for the top application bar, including title and edit mode toggle.
 - **components/AppBar.module.css**: Styles specific to the `AppBar` component.
 - **scripts/resizeSymbols.js**: Script for batch resizing of symbol images from 1024x1024 to 512x512.
 - **scripts/resizeSymbolsPng.js**: Script for selectively resizing only 1024x1024 PNG images while preserving originals.
-- **scripts/generate_audio.py**: Python script for generating audio files for symbols using the `gTTS` (Google Text-to-Speech) Python library. It processes symbols in the `public/symbols` directory and saves audio files in the `public/audio` directory. (Note: Not currently integrated as an npm script).
+- **scripts/generate_audio.py**: Python script for generating audio files for symbols using the `gTTS` (Google Text-to-Speech) Python library. It processes symbols based on their `displayName` and saves MP3 audio files in the `public/audio` directory. (Note: Not currently integrated as an npm script).
 
 ## Component Structure & Responsibilities
 
 ### App.tsx
 - **State Managed:**
-  - `nowSymbol: string | null`: Filename of the symbol for the "Now" activity.
-  - `nextSymbol: string | null`: Filename of the symbol for the "Next" activity.
-  - `isPopupOpen: 'now' | 'next' | null`: Controls which symbol selection popup is open.
+  - `currentSymbol: string | null`: Filename of the symbol for the currently displayed activity.
+  - `isPopupOpen: 'next' | null`: Controls if the symbol selection popup is open (only 'next' type is used).
   - `isEditMode: boolean`: Tracks whether the app is in edit mode or view mode.
   - `favoriteSymbols: string[]`: Array of filenames for favorited symbols, persisted in localStorage.
   - `activeCategory: string | 'Favorites'`: Currently selected category in the symbol selection popup.
@@ -34,20 +34,23 @@ This document provides an overview of the Now-Next application structure, explai
   - `selectedSequenceId: string | null`: ID of the currently selected sequence.
   - `currentStepIndex: number`: Current position in the selected sequence.
   - `userCreatedSequences: boolean[]`: Tracks which sequences are user-created vs. default.
+  - `isSequenceEditorOpen: boolean`: Controls visibility of the sequence editor modal.
+  - `sequenceToEdit: Sequence | undefined`: Holds the sequence currently being edited.
 - **Renders:**
   - `AppBar`: The top application bar containing controls.
-  - `ActivityCard` (x2): For "Now" and "Next".
-  - `SymbolSelectionPopup`: The popup for choosing symbols.
+  - `ActivityCard` (x1): For the `currentSymbol`.
+  - `SymbolSelectionPopup`: The popup for choosing the `currentSymbol`.
   - `SequenceBar`: For managing and navigating activity sequences.
   - `SequenceEditor`: For creating and editing sequences.
 - **Responsibilities:**
-  - Manages the main state of the application (`nowSymbol`, `nextSymbol`, `isPopupOpen`, etc.).
+  - Manages the main state of the application (`currentSymbol`, `isPopupOpen`, `isEditMode`, sequences, etc.).
   - Handles user interactions originating from child components to update state (e.g., receiving symbol selection from `SymbolSelectionPopup`, edit toggle from `AppBar`, sequence actions from `SequenceBar` / `SequenceEditor`).
   - Passes state and callbacks down to child components (`AppBar`, `ActivityCard`, `SymbolSelectionPopup`, `SequenceBar`, `SequenceEditor`).
-  - Initializes default symbols if none are selected.
-  - Persists `favoriteSymbols` and user-created `sequences` to `localStorage`.
+  - Initializes a default `currentSymbol` if none is selected and no sequence is active.
+  - Persists `favoriteSymbols` and user-created `sequences` (`userSequences` state) to `localStorage`.
   - Filters and provides symbols to `SymbolSelectionPopup` based on selected category using `getDisplaySymbols()`.
-  - Manages sequence selection, step navigation (updating `nowSymbol`, `nextSymbol`, `currentStepIndex`), creation, editing, and deletion.
+  - Manages sequence selection, step navigation (updating `currentSymbol` based on the *next* step, `currentStepIndex`), creation, editing, and deletion. Appends a 'finished' symbol automatically when saving sequences.
+  - Preloads audio files for all symbols on initial mount using `fetch`.
 
 ### AppBar Component
 - **Files:** `components/AppBar.tsx`, `components/AppBar.module.css`
@@ -63,18 +66,19 @@ This document provides an overview of the Now-Next application structure, explai
 
 ### ActivityCard Component
 - **Files:** `components/ActivityCard.tsx`, `components/ActivityCard.module.css`
-- **Purpose:** Displays either the "Now" or "Next" activity card.
+- **Purpose:** Displays the current activity card based on `currentSymbol`.
 - **Props (Inputs):**
-  - `title: string`: The title of the card ("Now" or "Next").
+  - `title: string`: The display name of the current symbol, or a placeholder.
   - `symbolFilename: string | null`: The filename of the symbol to display.
-  - `onClick?: () => void`: Callback function triggered when the card is clicked.
-  - `isFocus?: boolean`: If true, applies focus styling (green background, enhanced pulsing shadow via `.focusCard` class).
-  - `isEditMode: boolean`: Determines whether the card is clickable (edit mode) or displays symbol text (view mode).
+  - `onClick?: () => void`: Callback function triggered when the card is clicked in edit mode.
+  - `isEditMode: boolean`: Determines whether the card is clickable (edit mode) or plays audio (view mode).
+  - `onRemove?: () => void`: Optional callback for handling removal (e.g., in sequence editor). Displays an 'X' button in edit mode if provided (except for 'finished.png').
 - **Responsibilities:**
-  - Displays the symbol and title for the activity.
+  - Displays the symbol image and title for the current activity.
   - Triggers the parent (`App.tsx`) callback (`onClick`) when clicked in edit mode, initiating the symbol selection process via `SymbolSelectionPopup`.
-  - Applies focus styling for the "Now" card with subtle pulsing animation.
-  - Shows placeholder when no symbol is selected.
+  - Triggers audio playback for the displayed symbol using `utils/speech.ts` when clicked in view mode.
+  - Shows placeholder text when no symbol is selected.
+  - Optionally displays a remove button in edit mode.
 
 ### SymbolButton Component
 - **Files:** `components/SymbolButton.tsx`, `components/SymbolButton.module.css`
@@ -82,7 +86,6 @@ This document provides an overview of the Now-Next application structure, explai
 - **Props (Inputs):**
   - `symbolName: string`: The filename of the symbol.
   - `onClick: (e: React.MouseEvent) => void`: Callback function triggered when the button is clicked.
-  - `isNow?: boolean`: Indicates if this button represents the current "now" activity.
   - `isFavorite?: boolean`: Whether this symbol is marked as favorite.
   - `onToggleFavorite?: () => void`: Callback to toggle favorite status.
 - **Responsibilities:**
@@ -93,10 +96,10 @@ This document provides an overview of the Now-Next application structure, explai
 
 ### SymbolSelectionPopup Component
 - **Files:** `components/SymbolSelectionPopup.tsx`, `components/SymbolSelectionPopup.module.css`
-- **Purpose:** A modal popup for selecting symbols, displayed in full screen.
+- **Purpose:** A modal popup for selecting the `currentSymbol`, displayed in full screen.
 - **Props (Inputs):**
   - `isOpen: boolean`: Controls if the popup is visible.
-  - `popupType: 'now' | 'next' | 'sequence' | null`: Determines the title and behavior of the popup.
+  - `popupType: 'next' | null`: Determines the title ("Select Symbol") and behavior. Only 'next' is used by App.tsx.
   - `onClose: () => void`: Callback function to close the popup.
   - `onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void`: Callback function triggered when a `SymbolButton` inside is clicked.
   - `availableSymbols: string[]`: List of symbol filenames to display.
@@ -111,7 +114,7 @@ This document provides an overview of the Now-Next application structure, explai
   - Provides fixed (sticky) category tabs that remain visible when scrolling through symbols.
   - Displays a grid of `SymbolButton` components.
   - Handles category selection, calling back (`setActiveCategory`) to `App.tsx` to update the active category state.
-  - Handles symbol selection, calling back (`onSelectSymbol`) to `App.tsx` to update `nowSymbol` or `nextSymbol` state.
+  - Handles symbol selection, calling back (`onSelectSymbol`) to `App.tsx` to update `currentSymbol` state.
   - Handles favorite toggling, calling back (`toggleFavorite`) to `App.tsx`.
   - Features an 'X' close button in the header instead of a bottom close button.
   - Handles closing via backdrop click or close button, calling back (`onClose`) to `App.tsx` to update `isPopupOpen` state.
@@ -158,6 +161,16 @@ This document provides an overview of the Now-Next application structure, explai
   - Generates unique IDs for new sequences.
   - Calls back (`onSaveSequence`) to `App.tsx` upon saving to update sequence state and `localStorage`.
   - Calls back (`onClose`) to `App.tsx` to close the editor modal.
+
+### utils/speech.ts
+- **File:** `src/utils/speech.ts`
+- **Purpose:** Provides functionality to play pre-generated audio files.
+- **Key Functions:**
+  - `playAudioForWord(word: string)`: Takes a word (expected to match the base filename in `public/audio/`, like 'get_dressed'), constructs the path (`/audio/get_dressed.mp3`), creates an `Audio` element, and plays it. Handles basic input processing (path extraction, extension removal) and fallback to lowercase if the initial attempt fails.
+- **Responsibilities:**
+  - Encapsulates the logic for finding and playing `.mp3` files from the `/public/audio/` directory based on symbol names.
+  - Provides a simple Promise-based interface for audio playback.
+  - Called by `ActivityCard` in view mode.
 
 ## Data Management
 
@@ -206,17 +219,21 @@ This document provides an overview of the Now-Next application structure, explai
    - Loads default sequences from `sequences.ts`.
 
 2. **User Interaction -> State Change -> UI Update:**
-   - **Example: Changing "Now" Symbol (Edit Mode)**
-     - User clicks `ActivityCard` ("Now").
+   - **Example: Changing Current Symbol (Edit Mode)**
+     - User clicks `ActivityCard`.
      - `ActivityCard` calls `onClick` prop (passed from `App.tsx`).
-     - `App.tsx` sets `isPopupOpen` state to `'now'`. → `SymbolSelectionPopup` becomes visible.
+     - `App.tsx` sets `isPopupOpen` state to `'next'`. → `SymbolSelectionPopup` becomes visible.
      - User clicks a category tab in `SymbolSelectionPopup`.
      - `SymbolSelectionPopup` calls `setActiveCategory` prop.
      - `App.tsx` updates `activeCategory` state. → `SymbolSelectionPopup` filters displayed symbols.
      - User clicks a `SymbolButton` in `SymbolSelectionPopup`.
      - `SymbolButton` calls `onClick` prop (passed from `SymbolSelectionPopup`).
      - `SymbolSelectionPopup` calls `onSelectSymbol` prop.
-     - `App.tsx` updates `nowSymbol` state and sets `isPopupOpen` to `null`. → `ActivityCard` updates its display, `SymbolSelectionPopup` hides.
+     - `App.tsx` updates `currentSymbol` state and sets `isPopupOpen` to `null`. → `ActivityCard` updates its display, `SymbolSelectionPopup` hides.
+   - **Example: Playing Audio (View Mode)**
+     - User clicks `ActivityCard`.
+     - `ActivityCard` calls `playAudioForWord` from `utils/speech.ts` with the symbol's name.
+     - `speech.ts` finds and plays the corresponding `/public/audio/*.mp3` file.
    - **Example: Toggling Favorite**
      - User clicks star icon on `SymbolButton` (inside `SymbolSelectionPopup`).
      - `SymbolButton` calls `onToggleFavorite` prop.
@@ -225,28 +242,29 @@ This document provides an overview of the Now-Next application structure, explai
    - **Example: Selecting a Sequence**
      - User selects sequence from dropdown in `SequenceBar`.
      - `SequenceBar` calls `onSelectSequence` prop.
-     - `App.tsx` updates `selectedSequenceId`, resets `currentStepIndex`, and potentially updates `nowSymbol`/`nextSymbol` based on the sequence. → `SequenceBar` updates display, `ActivityCard`s update.
-   - Similar flows exist for toggling edit mode (`AppBar` -> `App.tsx`), navigating steps (`SequenceBar` -> `App.tsx`), and saving sequences (`SequenceEditor` -> `App.tsx`).
+     - `App.tsx` updates `selectedSequenceId`, resets `currentStepIndex` to -1, and updates `currentSymbol` based on the symbol at index 0 of the selected sequence. → `SequenceBar` updates display, `ActivityCard` updates.
+   - Similar flows exist for toggling edit mode (`AppBar` -> `App.tsx`), navigating steps (`SequenceBar` -> `App.tsx` -> updates `currentSymbol`), and saving sequences (`SequenceEditor` -> `App.tsx`).
 
 3. **Sequence Management:**
    - Creating a new sequence opens the SequenceEditor modal.
    - Editing an existing user-created sequence populates the editor with sequence data.
-   - Saving a sequence updates the sequences array and persists to localStorage.
-   - Deleting a sequence removes it from the array and localStorage.
+   - Saving a sequence updates the `userSequences` array in `App.tsx` state and persists to localStorage. Automatically appends a 'finished' symbol ID.
+   - Deleting a sequence removes it from the `userSequences` array and localStorage.
    - Sequences are categorized as default or user-created in the dropdown.
 
 4. **Data Flow:**
-   - Symbol data flows from `symbols.ts` → `App.tsx` → `SymbolSelectionPopup` → `SymbolButton`
-   - Sequence data flows from `sequences.ts` → `App.tsx` → `SequenceBar` → `SequenceEditor`
-   - User interactions flow in reverse: `SymbolButton` → `SymbolSelectionPopup` → `App.tsx`
+   - Symbol data flows from `symbols.ts` → `App.tsx` → `SymbolSelectionPopup` → `SymbolButton` / `ActivityCard`
+   - Sequence data flows from `sequences.ts` / `localStorage` → `App.tsx` → `SequenceBar` → `SequenceEditor`
+   - User interactions flow in reverse: `SymbolButton` → `SymbolSelectionPopup` → `App.tsx`, `ActivityCard` → `App.tsx` (edit) or `speech.ts` (view), `SequenceBar`/`Editor` -> `App.tsx`.
    - Favorites are stored in `App.tsx` state and persisted to localStorage
    - Category filtering happens at the App level with `getDisplaySymbols()` function
-   - Sequence navigation updates the current step index which determines Now/Next symbols
+   - Sequence navigation updates `currentStepIndex`, which determines the `currentSymbol` (based on the *next* step).
+   - Audio file paths are derived from `symbol.displayName` in `App.tsx` (for preloading) and `ActivityCard.tsx` (for playback via `speech.ts`).
 
 5. **Edit Mode Flow:**
    - Edit mode toggle in the `AppBar` toggles app interaction mode.
-   - When enabled, cards become clickable to change symbols and sequence controls are accessible.
-   - When disabled, cards simply display the current symbols without interaction and sequence bar may collapse.
+   - When enabled, the `ActivityCard` becomes clickable to change the `currentSymbol`, and sequence controls are accessible.
+   - When disabled, the `ActivityCard` plays audio when clicked, and sequence bar may collapse/hide controls.
 
 ## Symbol Management
 
@@ -269,12 +287,12 @@ This document provides an overview of the Now-Next application structure, explai
   2. Enter a sequence name in the editor
   3. Add symbols via quick add or symbol selection popup
   4. Reorder symbols using up/down arrows
-  5. Save the sequence
+  5. Save the sequence (a 'finished' symbol is automatically appended)
 - **Navigation:**
   1. Select a sequence from the dropdown
   2. Use prev/next buttons to move through steps
-  3. Current step updates the "Now" symbol and next step updates the "Next" symbol
-  4. Visual indicators show progress through the sequence (e.g., "3/8")
+  3. The `currentSymbol` displayed on the `ActivityCard` updates to reflect the symbol associated with the *next* step index (`currentStepIndex + 1`).
+  4. Visual indicators show progress through the sequence (e.g., "3/8") based on `currentStepIndex`.
 - **Editing/Deleting:**
   - Only user-created sequences can be edited or deleted
   - Default sequences are read-only
@@ -367,8 +385,11 @@ This document provides an overview of the Now-Next application structure, explai
    - Add entry in `src/data/symbols.ts`
 
 5. **Generate Audio for Symbols:**
-   - Audio files can be generated using the Python script: `python scripts/generate_audio.py`.
-   - This script uses the `gTTS` (Google Text-to-Speech) Python library to create MP3 files for each symbol based on `displayName` and saves them to `public/audio/`. Ensure you have the necessary Python dependencies installed (`pip install gTTS`).
+   - Audio files (`.mp3`) are expected in `public/audio/`.
+   - Filenames should correspond to the formatted `displayName` of symbols (lowercase, spaces replaced with underscores, punctuation removed except underscore. e.g., "Get Dressed" -> `get_dressed.mp3`).
+   - Use the Python script: `python scripts/generate_audio.py` to attempt automatic generation using `gTTS`.
+   - Verify generated files and manually create/adjust if needed.
+   - Ensure you have the necessary Python dependencies installed (`pip install gTTS`).
 
 ## Key Libraries & Services
 
@@ -377,12 +398,13 @@ This document provides an overview of the Now-Next application structure, explai
 - **TypeScript:** Language for static typing.
 - **CSS Modules:** For component-scoped styling.
 - **localStorage:** Browser API used for persisting user's favorite symbols and custom sequences locally on their device.
-- **gTTS (Python library):** Used by the `scripts/generate_audio.py` script to generate audio files for symbols from text. This is a development utility, not a runtime dependency of the web app itself.
+- **gTTS (Python library):** Used by the *optional* `scripts/generate_audio.py` script to generate audio files for symbols from text. This is a development utility, not a runtime dependency of the web app itself.
+- **Web Audio API (via `<audio>` element):** Used implicitly by `utils/speech.ts` for playback.
 
 ## Key Features
 
-1. **Activity Management:**
-   - Set "Now" and "Next" activities using symbols.
+1. **Activity Display:**
+   - Set and display the current activity using a symbol (`currentSymbol`).
 2. **Symbol Selection:**
    - Choose from a variety of symbols to represent tasks.
    - Filter symbols by categories (Morning Routine, Mealtime, Bedtime, Activities)
@@ -396,11 +418,12 @@ This document provides an overview of the Now-Next application structure, explai
 6. **Activity Sequences:**
    - Choose from predefined sequences like Bedtime Routine and Morning Routine.
    - Create, edit, and delete custom sequences.
-   - Navigate through sequence steps with prev/next controls.
+   - Navigate through sequence steps with prev/next controls, updating the displayed `currentSymbol`.
    - Visual step indicators to track progress through a sequence.
 7. **On-Demand Audio:**
-   - Plays audio for the selected symbol when clicked.
-   - Uses pre-generated MP3 files for consistent audio quality.
+   - Plays audio pronunciation for the displayed symbol when its card is clicked (in view mode).
+   - Uses pre-generated MP3 files from `public/audio/` for consistent audio quality.
+   - Audio files are preloaded for potentially faster playback.
 
 ## Future Enhancements
 

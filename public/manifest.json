@@ -1,6 +1,6 @@
 {
-  "name": "Now & Next",
-  "short_name": "Now & Next",
+  "name": "Next Up",
+  "short_name": "Next Up",
   "description": "Simple activity scheduler for Now and Next activities",
   "start_url": "/",
   "display": "standalone",

@@ -13,7 +13,6 @@ import {
   getSymbolByFilename
 } from './data/symbols';
 import {
-  getAllSequences,
   Sequence,
   SEQUENCES
 } from './data/sequences';
@@ -36,7 +35,6 @@ const App = () => {
   const [activeCategory, setActiveCategory] = useState<string | 'Favorites'>('Favorites');
   
   // Sequence state
-  const [sequences, setSequences] = useState<Sequence[]>([]);
   const [userSequences, setUserSequences] = useState<Sequence[]>([]);
   const [userCreatedSequences, setUserCreatedSequences] = useState<boolean[]>([]);
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
@@ -86,7 +84,7 @@ const App = () => {
       return;
     }
     
-    const sequence = [...SEQUENCES, ...userSequences].find(seq => seq.id === sequenceId);
+    const sequence = SEQUENCES.find(seq => seq.id === sequenceId);
     if (sequence && sequence.symbolIds.length > 0) {
       setSelectedSequenceId(sequenceId);
       setCurrentStepIndex(-1);
@@ -118,7 +116,7 @@ const App = () => {
   const handleNextStep = () => {
     if (!selectedSequenceId) return;
     
-    const allSequences = [...SEQUENCES, ...userSequences];
+    const allSequences = SEQUENCES;
     const sequence = allSequences.find(seq => seq.id === selectedSequenceId);
     if (!sequence || currentStepIndex >= sequence.symbolIds.length - 1) return;
     
@@ -130,7 +128,7 @@ const App = () => {
   };
   
   const updateSymbolForStep = (stepIndex: number) => {
-    const sequence = [...SEQUENCES, ...userSequences].find(seq => seq.id === selectedSequenceId);
+    const sequence = SEQUENCES.find(seq => seq.id === selectedSequenceId);
     if (sequence) {
       const nextStepSymbolIndex = stepIndex + 1;
       if (nextStepSymbolIndex >= 0 && nextStepSymbolIndex < sequence.symbolIds.length) {
@@ -196,8 +194,7 @@ const App = () => {
     const initialUserSequences = storedUserSequences ? JSON.parse(storedUserSequences) : [];
     setUserSequences(initialUserSequences);
 
-    const allInitialSequences = [...SEQUENCES, ...initialUserSequences];
-    setSequences(allInitialSequences);
+    // Recalculate userCreatedSequences based on initial load
     setUserCreatedSequences([
       ...Array(SEQUENCES.length).fill(false),
       ...Array(initialUserSequences.length).fill(true)
@@ -215,9 +212,7 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('userSequences', JSON.stringify(userSequences));
     
-    const allCurrentSequences = [...SEQUENCES, ...userSequences];
-    setSequences(allCurrentSequences);
-    
+    // Recalculate userCreatedSequences whenever userSequences changes
     setUserCreatedSequences([
         ...Array(SEQUENCES.length).fill(false),
         ...Array(userSequences.length).fill(true)
@@ -270,7 +265,7 @@ const App = () => {
   return (
     <div className={styles.container}>
       <AppBar 
-        title="Next Up" 
+        title="Next Up"
         onEditModeToggle={handleEditModeToggle}
         isEditMode={isEditMode}
       />
