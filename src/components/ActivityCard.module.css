@@ -19,7 +19,7 @@
   justify-content: center;
   margin: 0;
   background-color: transparent;
-  padding: 1rem;
+  padding: calc(1rem - 3px);
   background: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: var(--card-border-radius); /* Use variable */
@@ -28,13 +28,19 @@
   min-height: 150px;
   cursor: pointer;
   position: relative; /* For children like remove button */
-  /* border: 3px solid transparent; */ /* Removed */
+  border: 3px solid transparent;
   box-sizing: border-box;
   z-index: 0; /* Lower z-index */
 }
 
 .card:active {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card.pressing {
+  border-color: #4a90e2; /* Example blue border */
+  /* Optional: Add a very short transition */
+  transition: border-color 0.05s linear;
 }
 
 .card img {
@@ -108,26 +114,6 @@
   max-height: 100%;
   object-fit: contain;
   display: block;
-}
-
-/* Styles for SVG Border */
-.borderSvg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-  z-index: 1;
-}
-
-.borderRect {
-  fill: none;
-  stroke: #4a90e2;
-  stroke-width: 3px;
-  stroke-linecap: round;
-  /* stroke-dasharray, stroke-dashoffset, and transition are now inline styles */
 }
 
 /* Optional: Style for the remove button if kept */
