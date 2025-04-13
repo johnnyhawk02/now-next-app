@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0;
+  justify-content: space-between;
+  padding: 0.3rem; /* Increased padding slightly */
   background: #f8f9fa;
   border: 1px solid #dee2e6;
   border-radius: 0.5rem;
@@ -28,8 +28,11 @@
 }
 
 .symbolImage {
-  width: 100%; /* Make the image responsive */
-  height: auto; /* Maintain aspect ratio */
+  width: 85%; /* Keep width constraint */
+  /* height: 80%; */ /* Removed fixed height */
+  height: auto; /* Let height be intrinsic */
+  max-height: 80%; /* Add max-height as a safeguard */
+  object-fit: contain; /* Ensure image scales correctly */
   margin-bottom: 0; /* Remove unnecessary margin */
   /* Prevent image highlighting on iOS */
   user-select: none;
@@ -53,11 +56,11 @@
 }
 
 @media (min-width: 768px) {
-  .symbolImage {
-    /* Remove fixed width/height to maintain responsiveness */
+  /* Remove fixed width/height to maintain responsiveness */
+  /* .symbolImage { 
     width: 100%;
     height: auto;
-  }
+   } */
 }
 
 @media (max-width: 480px) {
@@ -66,11 +69,12 @@
     min-height: 90px;
   }
 
-  .symbolImage {
-    width: 100%; /* Ensure full width */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 0; /* Reduced margin to fit text better */
-  }
+  /* Remove width/height overrides here too */
+  /* .symbolImage {
+    width: 100%; 
+    height: auto; 
+    margin-bottom: 0; 
+   } */
   
   .symbolName {
     font-size: 0.7rem; /* Slightly smaller font on mobile */

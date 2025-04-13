@@ -1,6 +1,6 @@
 # Up Next App Project Structure (Simplified: Tags + Direct Interaction)
 
-*(Last Updated: YYYY-MM-DD)* // TODO: Update this date
+*(Last Updated: 2024-03-21)*
 
 This document provides an overview of the **ultra-simplified** Up Next application structure. This version **removes sequences and edit mode**, uses a **tag-based system** for symbols, and features direct interaction:
 - **Short Press** on symbol: Plays audio.
@@ -8,7 +8,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
 
 ## Main Application Files
 
-- **App.tsx**: Manages state (`currentSymbol`, `isPopupOpen`, `favoriteSymbols`, `activeTag`) and renders UI. Handles opening the symbol popup.
+- **App.tsx**: Manages state (`currentSymbol`, `isPopupOpen`, `favoriteSymbols`, `activeTag`) and renders UI. Handles opening the symbol popup and audio preloading.
 - **App.module.css**: Component-specific styles for the App component layout.
 - **main.tsx**: Entry point for the React application. Includes standalone mode detection for iOS.
 - **index.css**: Global CSS styles including resets, animations, typography defaults, and PWA-specific styles.
@@ -18,9 +18,21 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
 - **utils/speech.ts**: Utility for playing pre-generated audio files associated with symbols.
 - **components/AppBar.tsx**: Component for the top application bar (displays title only).
 - **components/AppBar.module.css**: Styles specific to the `AppBar` component.
+- **components/LongPressIndicator.tsx**: NEW - Visual feedback component for long press interactions.
+- **components/LongPressIndicator.module.css**: NEW - Styles for long press indicator.
 - **scripts/resizeSymbols.js**: Script for batch resizing of symbol images from 1024x1024 to 512x512.
 - **scripts/resizeSymbolsPng.js**: Script for selectively resizing only 1024x1024 PNG images while preserving originals.
 - **scripts/generate_audio.py**: Python script for generating audio files for symbols using `gTTS`.
+
+## Configuration Files
+
+- **eslint.config.js**: ESLint configuration with TypeScript and React Hooks support.
+- **tsconfig.json**: Base TypeScript configuration.
+- **tsconfig.app.json**: Application-specific TypeScript settings.
+- **tsconfig.node.json**: Node-specific TypeScript settings.
+- **vite.config.ts**: Vite build tool configuration.
+- **postcss.config.cjs**: PostCSS configuration (currently empty).
+- **tailwind.config.js**: Tailwind CSS configuration (currently empty).
 
 ## Component Structure & Responsibilities
 
@@ -29,7 +41,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
   - `currentSymbol: string | null`: Filename of the symbol.
   - `isPopupOpen: 'next' | null`: Controls symbol selection popup visibility.
   - `favoriteSymbols: string[]`: Favorited symbols (localStorage).
-  - `activeTag: string | 'Favorites' | 'All'>`: Selected tag filter.
+  - `activeTag: string | 'Favorites' | 'All'`: Selected tag filter.
 - **Renders:**
   - `AppBar`: Title bar.
   - `ActivityCard`: Displays current symbol, handles press interactions.
@@ -42,7 +54,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
   - Initializes default symbol.
   - Persists/loads `favoriteSymbols` to/from `localStorage`.
   - Filters symbols for popup based on `activeTag`.
-  - Preloads audio.
+  - Preloads audio files on startup.
 
 ### AppBar Component
 - **Files:** `components/AppBar.tsx`, `components/AppBar.module.css`
@@ -57,12 +69,23 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
   - `title: string`: Symbol display name.
   - `symbolFilename: string | null`: Symbol filename.
   - `onChangeSymbol: () => void`: Callback to open symbol popup (**triggered by long press**).
+  - `onRemove?: () => void`: NEW - Optional callback to remove the card.
 - **Responsibilities:**
   - Displays symbol image and title.
   - **Detects short vs. long press (touch/mouse):**
     - **Short Press:** Plays audio via `utils/speech.ts`.
     - **Long Press:** Calls `onChangeSymbol` prop.
   - Shows placeholder text.
+  - NEW - Handles optional removal functionality.
+
+### LongPressIndicator Component
+- **Files:** `components/LongPressIndicator.tsx`, `components/LongPressIndicator.module.css`
+- **Purpose:** Provides visual feedback during long press interactions.
+- **Props:**
+  - `isPressing: boolean`: Whether a long press is in progress.
+- **Responsibilities:**
+  - Displays visual feedback during long press.
+  - Animates progress towards long press threshold.
 
 ### SymbolButton Component
 - **Files:** `components/SymbolButton.tsx`, `components/SymbolButton.module.css`
@@ -74,9 +97,10 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
   - `onToggleFavorite?: () => void`: Callback to toggle favorite status.
 - **Responsibilities:**
   - Displays a symbol with its properly formatted name using data from `symbols.ts`.
-  - Provides favorite toggling functionality with star icon, calling back (`onToggleFavorite`) to `SymbolSelectionPopup` and then `App.tsx` to update state and `localStorage`.
-  - Handles click events (calling `onClick` prop passed from `SymbolSelectionPopup`) while preventing event propagation for favorite toggling.
-  - Applies special styling for "now" symbols.
+  - Provides favorite toggling functionality with star icon.
+  - Handles click events while preventing event propagation for favorite toggling.
+  - Provides keyboard accessibility for favorite toggling.
+  - Displays formatted symbol names with proper spacing.
 
 ### SymbolSelectionPopup Component
 - **Files:** `components/SymbolSelectionPopup.tsx`, `components/SymbolSelectionPopup.module.css`
@@ -88,7 +112,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
   - `onSelectSymbol: (e: React.MouseEvent, symbolName: string) => void`: Callback function triggered when a `SymbolButton` inside is clicked.
   - `availableSymbols: string[]`: List of symbol filenames to display based on the active tag filter.
   - `tags?: string[]`: Available tags for filtering symbols (includes 'All' and 'Favorites').
-  - `activeTag?: string | 'Favorites' | 'All'>`: Currently selected tag.
+  - `activeTag?: string | 'Favorites' | 'All'`: Currently selected tag.
   - `setActiveTag?: (tag: string | 'Favorites' | 'All') => void`: Callback to change the active tag.
   - `favoriteSymbols?: string[]`: Array of favorite symbol filenames.
   - `toggleFavorite?: (symbolName: string) => void`: Callback to toggle a symbol's favorite status.
@@ -100,7 +124,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
   - Handles symbol selection, calling back (`onSelectSymbol`) to `App.tsx`.
   - Handles favorite toggling, calling back (`toggleFavorite`) to `App.tsx`.
   - Features an 'X' close button in the header.
-  - Handles closing via backdrop click or close button, calling back (`onClose`) to `App.tsx`.
+  - Handles closing via backdrop click or close button.
 
 ## Data Management
 
@@ -128,6 +152,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
    - `App.tsx` initializes state (`currentSymbol`, `isPopupOpen`, etc.).
    - Reads `favoriteSymbols` from `localStorage`.
    - Sets default `currentSymbol`.
+   - Preloads audio files for all symbols.
 
 2. **User Interaction -> State Change -> UI Update:**
    - **Example: Changing Symbol**
@@ -150,76 +175,6 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
      - `SymbolButton` calls `onToggleFavorite` (`SymbolSelectionPopup`).
      - `SymbolSelectionPopup` calls `toggleFavorite` (`App.tsx`).
      - `App.tsx` updates `favoriteSymbols` state and writes to `localStorage`. → Star icon toggles.
-
-4. **Data Flow:**
-   - Symbol data: `symbols.ts` → `App.tsx` → `SymbolSelectionPopup` → `SymbolButton` / `ActivityCard`.
-   - User interactions: `SymbolButton` → `SymbolSelectionPopup` → `App.tsx`, **`ActivityCard` (short/long press) → `App.tsx` (popup) or `speech.ts` (audio).**
-   - Favorites stored in `localStorage` via `App.tsx` state.
-   - Tag filtering in `App.tsx`.
-
-## Symbol Management
-
-- **Data Source:** `src/data/symbols.ts`
-- **Storage:** Images in `public/symbols/`
-- **Organization:** Symbols organized via `tags: string[]` in `symbols.ts`.
-- **Favorites:** Users can mark symbols as favorites (stored in localStorage).
-- **Multi-Tag:** Symbols can have multiple tags.
-- **Adding New Symbols:**
-  1. Add image to `public/symbols/`.
-  2. Add entry to `SYMBOLS` array in `src/data/symbols.ts`, including relevant `tags`.
-  3. Ensure corresponding audio file exists in `public/audio/`.
-
-## UI/UX Features
-
-- **Full Screen Popup:** Symbol selection modal.
-- **Fixed Tag Tabs:** Tag tabs remain fixed for filtering.
-- **Tag Filtering:** Tab navigation for filtering symbols by tag (All, Favorites, others).
-- **Favorites System:** Star icons for quick access.
-- **Symbol Grid Layout:** Responsive symbol grid.
-- **Interaction Model:**
-  - **Short Press:** Play audio.
-  - **Long Press:** Open symbol selection.
-
-## Styling Architecture
-
-- **CSS Modules:**
-  - Each component has its own `.module.css` file for component-scoped styling:
-    - `App.module.css`: Layout styles for the main App component.
-    - `AppBar.module.css`: Styles for the top application bar and its controls.
-    - `ActivityCard.module.css`: Card styling and animations
-    - `SymbolButton.module.css`: Button and image styles
-    - `SymbolSelectionPopup.module.css`: Popup and grid layout styles
-  - CSS Modules ensure styles are scoped to their components and prevent conflicts
-- **Global Styles:**
-  - `index.css` contains only:
-    - Global resets and defaults
-    - Base typography styles
-    - Shared animations (fadeIn, scaleIn)
-    - PWA-specific styles
-    - iOS safe area handling
-- **Z-Index Management:**
-  - AppBar: 10000 (highest)
-  - Favorite buttons: 1030
-  - Symbol buttons: 1010
-  - Popup overlay: 1000
-- **Animations:**
-  - Card pulse: Gentle 3s ease-in-out scaling
-  - Popup fade in: 0.3s ease
-  - Popup content scale in: 0.2s ease-out
-
-## Progressive Web App (PWA) Features
-
-- **Installable:** Can be added to home screen on mobile devices
-- **Standalone Mode:** Runs in full-screen mode without browser UI
-- **Custom Icon:** Uses dream machine.png as app icon
-- **Custom Splash Screen:** Configured for iOS devices
-- **Safe Area Handling:** Respects device notches and home indicators
-- **Theme Color:** Light blue theme (#f0f4ff)
-- **Orientation:** Default portrait orientation
-- **Touch Optimizations:**
-  - Disabled double-tap zoom
-  - Removed tap highlight effect
-  - Prevented touch callouts on images
 
 ## Development Workflow
 
@@ -248,7 +203,7 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
 
 5. **Generate Audio for Symbols:**
    - Audio files (`.mp3`) are expected in `public/audio/`.
-   - Filenames should correspond to the formatted `displayName` of symbols (lowercase, spaces replaced with underscores, punctuation removed except underscore. e.g., "Get Dressed" -> `get_dressed.mp3`).
+   - Filenames should correspond to the formatted `displayName` of symbols (lowercase, spaces replaced with underscores).
    - Use the Python script: `python scripts/generate_audio.py` to attempt automatic generation using `gTTS`.
    - Verify generated files and manually create/adjust if needed.
    - Ensure you have the necessary Python dependencies installed (`pip install gTTS`).
@@ -258,10 +213,11 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
 - **React:** Core UI library.
 - **Vite:** Build tool and development server.
 - **TypeScript:** Language for static typing.
+- **ESLint:** Code linting with TypeScript and React Hooks support.
 - **CSS Modules:** For component-scoped styling.
 - **localStorage:** Used for persisting `favoriteSymbols`.
-- **gTTS (Python library):** Used by the *optional* `scripts/generate_audio.py` script to generate audio files for symbols from text. This is a development utility, not a runtime dependency of the web app itself.
-- **Web Audio API (via `<audio>` element):** Used implicitly by `utils/speech.ts` for playback.
+- **gTTS (Python library):** Used by the *optional* `scripts/generate_audio.py` script.
+- **Web Audio API:** Used implicitly by `utils/speech.ts` for playback.
 
 ## Key Features
 
@@ -270,15 +226,17 @@ This document provides an overview of the **ultra-simplified** Up Next applicati
 3. **Tag-Based Organization:** Flexible symbol tagging.
 4. **Audio Playback:** Short press symbol to hear pronunciation.
 5. **Responsive Design & PWA:** Optimized for desktop/mobile.
+6. **Long Press Feedback:** Visual indicator for long press interactions.
+7. **Keyboard Accessibility:** Support for keyboard navigation and interactions.
 
 ## Future Enhancements
 
-1. **Persistence & Sync:** Cloud sync for favorites/tags?
-2. **Accessibility Improvements:** Add screen reader support with ARIA labels
-3. **Enhanced Symbol Management:** Custom symbol upload, tag management (create/edit/delete tags), symbol search
-4. **User Experience:** Haptic feedback on mobile devices
-5. **Timer Integration:** Optional timers for activities
-6. **Multi-User Support:** User profiles for different family members
-7. **Progress Tracking:** Daily/weekly activity completion stats
+1. **Persistence & Sync:** Cloud sync for favorites/tags.
+2. **Enhanced Symbol Management:** Custom symbol upload, tag management.
+3. **User Experience:** Haptic feedback on mobile devices.
+4. **Timer Integration:** Optional timers for activities.
+5. **Multi-User Support:** User profiles for different family members.
+6. **Progress Tracking:** Daily/weekly activity completion stats.
+7. **Tailwind Integration:** Complete Tailwind CSS setup for consistent styling.
 
 These enhancements would expand the app's functionality while maintaining its core simplicity and ease of use. Implementation priority should be based on user feedback and specific needs.

@@ -1,0 +1,15 @@
+.indicatorContainer {
+  position: fixed;
+  top: 10px; /* Adjust position as needed */
+  right: 10px; /* Adjust position as needed */
+  width: 100px; /* Width of the indicator */
+  height: 8px; /* Height of the indicator */
+  border: 2px solid blue; /* Blue border */
+  border-radius: 4px;
+  z-index: 10002; /* Ensure it's above AppBar */
+  pointer-events: none; /* Don't interfere with clicks */
+}
+
+/* Remove fill related styles if they exist */
+/* .indicatorFill { ... } */
+/* @keyframes fillAnimation { ... } */ 
