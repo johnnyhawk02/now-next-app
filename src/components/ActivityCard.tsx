@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { getSymbolByFilename } from '../data/symbols';
 import { playAudioForWord } from '../utils/speech';
 import styles from './ActivityCard.module.css';
@@ -10,7 +10,7 @@ interface ActivityCardProps {
   onRemove?: () => void;
 }
 
-const LONG_PRESS_DURATION = 500;
+const LONG_PRESS_DURATION = 800;
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   title,
@@ -20,11 +20,23 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const longPressTriggered = useRef(false);
+  const [isPressing, setIsPressing] = useState(false);
+  const rectRef = useRef<SVGRectElement>(null); // Ref for the rect
+  const [perimeter, setPerimeter] = useState(0); // State for perimeter
+
+  // Calculate perimeter on mount
+  useEffect(() => {
+    if (rectRef.current) {
+      const length = rectRef.current.getTotalLength();
+      setPerimeter(length);
+    }
+  }, []); // Runs once on mount
 
   const handlePressStart = (_e: React.TouchEvent | React.MouseEvent) => {
     // Prevent default actions like text selection or magnifier loop
     _e.preventDefault();
 
+    setIsPressing(true);
     longPressTriggered.current = false;
     
     if (pressTimer.current) {
@@ -38,6 +50,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   };
 
   const handlePressEnd = () => {
+    setIsPressing(false);
+
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
@@ -64,17 +78,33 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     };
   }, []);
 
+  // Basic card style (padding etc handled in CSS)
   const cardStyle: React.CSSProperties = {
     cursor: 'pointer',
     width: '100%',
     maxWidth: '100%',
-    padding: '1rem',
-    boxSizing: 'border-box'
+  };
+
+  // SVG properties
+  const strokeWidth = 3; // Border thickness
+  // Use fixed known value (0.75rem = 12px approx) instead of reading CSS variable
+  const cardBorderRadiusPx = 12; 
+  const rectRx = Math.max(0, cardBorderRadiusPx - strokeWidth / 2);
+
+  // Inline style for the rect using calculated perimeter
+  const rectStyle: React.CSSProperties = {
+    vectorEffect: "non-scaling-stroke",
+    strokeDasharray: perimeter,
+    strokeDashoffset: isPressing ? 0 : perimeter, // Animate TO 0 when pressing
+    // Apply transition only when pressing, add delay
+    transition: isPressing 
+        ? `stroke-dashoffset ${LONG_PRESS_DURATION}ms linear 200ms` // Added 200ms delay
+        : 'stroke-dashoffset 0.1s linear' // Quick reset transition (no delay needed)
   };
 
   return (
-    <div 
-      className={styles.container} 
+    <div
+      className={styles.container}
       onTouchStart={handlePressStart}
       onTouchEnd={handlePressEnd}
       onMouseDown={handlePressStart}
@@ -82,6 +112,22 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       onMouseLeave={handlePressEnd}
       onContextMenu={(e) => e.preventDefault()}
     >
+      <svg
+        className={styles.borderSvg}
+        preserveAspectRatio="none"
+      >
+        <rect
+          ref={rectRef}
+          className={styles.borderRect}
+          x={strokeWidth / 2}
+          y={strokeWidth / 2}
+          width={`calc(100% - ${strokeWidth}px)`}
+          height={`calc(100% - ${strokeWidth}px)`}
+          rx={rectRx}
+          style={rectStyle}
+        />
+      </svg>
+
       {onRemove && symbolFilename !== 'finished.png' && (
         <button
           className={styles.removeButton}
@@ -94,6 +140,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           ✕
         </button>
       )}
+
       <div
         className={styles.card}
         style={cardStyle}

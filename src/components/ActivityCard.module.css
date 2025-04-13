@@ -8,6 +8,8 @@
   -moz-user-select: none;
   -ms-user-select: none;
   touch-action: manipulation;
+  /* Define border radius as CSS variable */
+  --card-border-radius: 0.75rem; 
 }
 
 .card {
@@ -15,21 +17,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0; /* Remove auto margin */
+  margin: 0;
   background-color: transparent;
   padding: 1rem;
   background: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0.75rem;
+  border-radius: var(--card-border-radius); /* Use variable */
   text-align: center;
   flex-direction: column;
-  /* Removed transition property */
   min-height: 150px;
   cursor: pointer;
+  position: relative; /* For children like remove button */
+  /* border: 3px solid transparent; */ /* Removed */
+  box-sizing: border-box;
+  z-index: 0; /* Lower z-index */
 }
 
 .card:active {
-  /* Removed transform scale */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -102,6 +106,49 @@
 .symbolImage {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain; /* Keep image size unchanged */
+  object-fit: contain;
   display: block;
+}
+
+/* Styles for SVG Border */
+.borderSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+.borderRect {
+  fill: none;
+  stroke: #4a90e2;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  /* stroke-dasharray, stroke-dashoffset, and transition are now inline styles */
+}
+
+/* Optional: Style for the remove button if kept */
+.removeButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(200, 200, 200, 0.7);
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2; /* Keep highest z-index */
+}
+.removeButton:hover {
+  background-color: rgba(150, 150, 150, 0.8);
 }
