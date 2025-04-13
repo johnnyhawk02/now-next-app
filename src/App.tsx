@@ -7,7 +7,8 @@ import {
   getSymbolsByTag,
   getAllFilenames,
   SYMBOLS,
-  getSymbolByFilename
+  getSymbolByFilename,
+  type Symbol as AppSymbol
 } from './data/symbols';
 import styles from './App.module.css';
 
@@ -45,12 +46,32 @@ const App = () => {
   };
 
   const getDisplaySymbols = (): string[] => {
+    let symbolFilenames: string[];
     if (activeTag === 'Favorites') {
-      return favoriteSymbols.length > 0 ? favoriteSymbols : getAllFilenames();
+      symbolFilenames = favoriteSymbols.length > 0 ? favoriteSymbols : getAllFilenames();
     } else if (activeTag === 'All') {
-      return getAllFilenames();
+      symbolFilenames = getAllFilenames();
+    } else {
+      symbolFilenames = getSymbolsByTag(activeTag).map(symbol => symbol.filename);
     }
-    return getSymbolsByTag(activeTag).map(symbol => symbol.filename);
+
+    // Convert filenames to Symbol objects (or undefined)
+    const symbolsOrUndefined: (AppSymbol | undefined)[] = symbolFilenames.map(
+      filename => getSymbolByFilename(filename)
+    );
+      
+    // Filter out undefined symbols using the imported type
+    const definedSymbols: AppSymbol[] = symbolsOrUndefined.filter(
+        (symbol): symbol is AppSymbol => symbol !== undefined
+    );
+
+    // Sort the defined symbols by displayName
+    const sortedSymbols = definedSymbols.sort((a, b) => 
+        a.displayName.localeCompare(b.displayName)
+    );
+      
+    // Return the sorted filenames
+    return sortedSymbols.map(symbol => symbol.filename);
   };
 
   useEffect(() => {

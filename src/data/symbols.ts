@@ -28,19 +28,19 @@ export const SYMBOLS: Symbol[] = [
     id: 'brush-teeth',
     filename: 'brush teeth girl.png',
     displayName: 'Brush Teeth',
-    tags: ['Morning', 'Bedtime', 'Hygiene'],
+    tags: ['Morning', 'Bedtime'],
   },
   {
     id: 'brush-hair',
     filename: 'brush hair.png',
     displayName: 'Brush Hair',
-    tags: ['Morning', 'Hygiene'],
+    tags: ['Morning'],
   },
   {
     id: 'toilet',
     filename: 'toilet.png',
     displayName: 'Toilet',
-    tags: ['Hygiene'],
+    tags: ['Morning', 'Bedtime'],
   },
   
   // Mealtime related
@@ -74,7 +74,7 @@ export const SYMBOLS: Symbol[] = [
     id: 'bath',
     filename: 'bath.png',
     displayName: 'Bath',
-    tags: ['Bedtime', 'Hygiene'],
+    tags: ['Bedtime'],
   },
   {
     id: 'pyjamas',
@@ -190,7 +190,7 @@ export const SYMBOLS: Symbol[] = [
     id: 'finished',
     filename: 'finished.png',
     displayName: 'Finished',
-    tags: ['General'],
+    tags: [],
   },
   {
     id: 'blackpool',
@@ -209,6 +209,12 @@ export const SYMBOLS: Symbol[] = [
     filename: 'cinema.png',
     displayName: 'Cinema',
     tags: ['Outings'],
+  },
+  {
+    id: 'trim-fringe',
+    filename: 'trim fringe.png',
+    displayName: 'Trim Fringe',
+    tags: ['Morning'],
   },
 ];
 
