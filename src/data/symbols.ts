@@ -216,6 +216,12 @@ export const SYMBOLS: Symbol[] = [
     displayName: 'Trim Fringe',
     tags: ['Morning'],
   },
+  {
+    id: 'gullivers-world',
+    filename: 'gullivers word.png',
+    displayName: "Gulliver's World",
+    tags: ['Outings'],
+  },
 ];
 
 // Helper functions
